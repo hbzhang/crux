@@ -128,9 +128,13 @@ Prototype.setSlots(
 
 for(slotName in Prototype)
 {
-	[Array, String, Number].forEach(function(contructorFunction)
+	[Array, String, Number, Date].forEach(function(contructorFunction)
 	{
 		contructorFunction.prototype[slotName] = Prototype[slotName];
+		contructorFunction.clone = function()
+		{
+			return new contructorFunction;
+		}
 	});
 }
 
@@ -497,59 +501,7 @@ Array.prototype.setSlotsIfAbsent(
 	}
 });
 
-/****************************** Date ******************************/
-
-Date_timestampString = function(date)
-{
-	var timestamp = String((new Date).getTime());
-	var secondsIndex = timestamp.length - 3;
-	return timestamp.substring(0, secondsIndex) + "." + timestamp.substring(secondsIndex) + "0".repeated(13);
-}
-
-function Date_elapsed(callback)
-{
-	var before = new Date;
-	callback();
-	return new Date - before;
-}
-
 /****************************** Number ******************************/
-
-function Number_formatThousands(aNumber)
-{
-	var numberString = String(aNumber);
-
-	var prefix = "";
-	if(numberString.beginsWith("-"))
-	{
-		numberString = numberString.removePrefix("-");
-		prefix = "-";
-	}
-
-	var decimal = numberString.split(".")
-	var suffix = "";
-	if(decimal.length == 2)
-	{
-		suffix = "." + decimal[1]
-		numberString = decimal[0];
-	}
-
-	var result = "";
-	for(var i = numberString.length - 3; i > 0; i -= 3)
-	{
-		result = "," + numberString.substr(i, 3) + result;
-	}
-
-	return prefix + numberString.substr(0, i + 3) + result + suffix;
-}
-
-Number_repeat = function(number, callback)
-{
-	for(var i = 0; i < number; i++)
-	{
-		callback(i);
-	}
-}
 
 Number.prototype.setSlots(
 {
@@ -560,13 +512,11 @@ Number.prototype.setSlots(
 	
 	repeat: function(callback)
 	{
-		Number_repeat(this, callback);
+		for(var i = 0; i < this; i++)
+		{
+			callback(i);
+		}
 		return this;
-	},
-	
-	formatThousands: function()
-	{
-		return Number_formatThousands(this);
 	}
 });
 
@@ -654,7 +604,7 @@ String.prototype.setSlotsIfAbsent(
 	{
 		var result = "";
 		var aString = this;
-		Number_repeat(times, function(){ result += aString });
+		times.repeat(function(){ result += aString });
 		return result
 	},
 
