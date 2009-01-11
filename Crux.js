@@ -223,6 +223,18 @@ Importer.setSlot("importPath", Importer.importPaths);
 
 Array.prototype.setSlotsIfAbsent(
 {
+	at: function(index)
+	{
+		if(index > 0)
+		{
+			return this[index];
+		}
+		else
+		{
+			return this[this.length + index];
+		}
+	},
+	
 	removeElements: function(elements)
 	{
 		elements.forEach(function(e)
@@ -245,6 +257,11 @@ Array.prototype.setSlotsIfAbsent(
 	copy: function()
 	{
 		return this.slice();
+	},
+
+	first: function()
+	{
+		return this[0];
 	},
 
 	last: function()
@@ -520,21 +537,6 @@ Number.prototype.setSlots(
 	}
 });
 
-/****************************** LocationMonitor ******************************/
-
-LocationMonitor = Prototype.clone().newSlot("period", (200).milliseconds()).setSlots(
-{
-	init: function()
-	{
-		this._changeListeners = [];
-	},
-	
-	start: function()
-	{
-		
-	}
-});
-
 /****************************** Interval ******************************/
 
 Interval = Prototype.clone().newSlots("lowerBound", "excludesLowerBound", "upperBound", "excludesUpperBound").setSlots(
@@ -607,6 +609,11 @@ String.prototype.setSlotsIfAbsent(
 		times.repeat(function(){ result += aString });
 		return result
 	},
+	
+	isEmpty: function()
+	{
+		return this.length == 0;
+	},
 
 	beginsWith: function(prefix)
 	{
@@ -644,5 +651,70 @@ String.prototype.setSlotsIfAbsent(
 	{
 		var result = this.removePrefix("http://");
 		return result.slice(0, result.indexOf("/"));
+	}
+});
+
+/****************************** Uri ******************************/
+//NEEDS WORK!
+
+
+Uri = Prototype.clone().newSlots("protocol", "hostname", "port", "path", "queryString", "fragment").setSlots(
+{
+	withString: function(uriString)
+	{
+		/* parseUri attributed to Steven Levithan
+		 * http://blog.stevenlevithan.com/archives/parseuri
+		 */
+		function parseUri (str) {
+			var	o   = parseUri.options,
+				m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+				uri = {},
+				i   = 14;
+
+			while (i--) uri[o.key[i]] = m[i] || "";
+
+			uri[o.q.name] = {};
+			uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+				if ($1) uri[o.q.name][$1] = $2;
+			});
+
+			return uri;
+		};
+
+		parseUri.options = {
+			strictMode: false,
+			key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+			q:   {
+				name:   "queryKey",
+				parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+			},
+			parser: {
+				strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+				loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+			}
+		};
+		
+		uriComponents = parseUri(uriString);
+		
+		return Uri.clone()
+			.setProtocol(uriComponents.protocol)
+			.setHostname(uriComponents.host)
+			.setPort(uriComponents.port.isEmpty() ? null : uriComponents.port)
+			.setPath(uriComponents.path)
+			.setQueryString(uriComponents.query.isEmpty() ? null : uriComponents.query)
+			.setFragment(uriComponents.anchor.isEmpty() ? null : uriComponents.anchor);
+	},
+	
+	asString: function()
+	{
+		var uriString = this._protocol + "://" + this._hostname;
+		if(this._port)
+			uriString += ":" + this._port;
+		uriString += this._path;
+		if(this._queryString)
+			uriString += "?" + this._queryString;
+		if(this._fragment)
+			uriString += "#" + this._fragment;
+		return uriString;
 	}
 });
