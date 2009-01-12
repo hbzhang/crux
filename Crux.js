@@ -36,8 +36,11 @@ Prototype.setSlots = function(slots)
 {
 	for(name in slots)
 	{
-		this.setSlot(name, slots[name]);
+		if(slots.hasOwnProperty(name))
+			this.setSlot(name, slots[name]);
 	}
+	if(slots.hasOwnProperty("toString"))
+		this.toString = slots.toString;
 	return this;
 };
 
@@ -651,6 +654,11 @@ String.prototype.setSlotsIfAbsent(
 	{
 		var result = this.removePrefix("http://");
 		return result.slice(0, result.indexOf("/"));
+	},
+	
+	contains: function(aString)
+	{
+		return this.indexOf(aString) > -1;
 	}
 });
 
@@ -705,7 +713,7 @@ Uri = Prototype.clone().newSlots("protocol", "hostname", "port", "path", "queryS
 			.setFragment(uriComponents.anchor.isEmpty() ? null : uriComponents.anchor);
 	},
 	
-	asString: function()
+	toString: function()
 	{
 		var uriString = this._protocol + "://" + this._hostname;
 		if(this._port)
@@ -718,3 +726,12 @@ Uri = Prototype.clone().newSlots("protocol", "hostname", "port", "path", "queryS
 		return uriString;
 	}
 });
+
+/****************************** Uri ******************************/
+Browser = Prototype.clone().setSlots(
+{
+	isInternetExplorer: function()
+	{
+		return navigator.appName.contains("Internet Explorer");
+	}
+})
