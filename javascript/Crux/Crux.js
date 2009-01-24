@@ -1,4 +1,6 @@
-/****************************** Prototype ******************************/
+
+/***************************** Proto *****************************/
+
 
 if (!Array.prototype.forEach)
 {
@@ -24,15 +26,15 @@ String.prototype.asCapitalized = function()
 	});
 };
 
-Prototype = new Object;
+Proto = new Object;
 
-Prototype.setSlot = function(name, value)
+Proto.setSlot = function(name, value)
 {
 	this[name] = value;
 	return this;
 };
 
-Prototype.setSlots = function(slots)
+Proto.setSlots = function(slots)
 {
 	for(name in slots)
 	{
@@ -44,27 +46,46 @@ Prototype.setSlots = function(slots)
 	return this;
 };
 
-Prototype.setSlots(
+Proto.setSlots(
 {
 	clone: function()
 	{
 		var constructor = new Function;
 		constructor.prototype = this;
-		obj = new constructor;
+		
+		var obj = new constructor;
+		obj._proto = this;
 		if(obj.init)
 			obj.init();
 		return obj
+	},
+	
+	proto: function()
+	{
+		return this._proto;
+	},
+	
+	removeSlots: function()
+	{
+		this.argsAsArray(arguments).forEach(function(slotName)
+		{
+			delete this["_" + name];
+			delete this[name];
+			delete this["set" + name.asCapitalized()];
+		});
+		
+		return this;
 	},
 	
 	setSlotsIfAbsent: function(slots)
 	{
 		for(name in slots)
 		{
-			if(!this[name])
-			{
+			if(!this[name] && slots.hasOwnProperty(name))
 				this.setSlot(name, slots[name]);
-			}
 		}
+		if(slots.hasOwnProperty("toString"))
+			this.toString = slots.toString;
 		return this;
 	},
 	
@@ -126,14 +147,26 @@ Prototype.setSlots(
 			this.newNumberSlot(slotName);
 		}, this);
 		return this;
+	},
+	
+	forEachSlot: function(callback)
+	{
+		for(var slotName in this)
+		{
+			if(this.hasOwnProperty(slotName))
+			{
+				callback(this[slotName], slotName);
+			}
+		}
+		return this;
 	}
 });
 
-for(slotName in Prototype)
+for(slotName in Proto)
 {
 	[Array, String, Number, Date].forEach(function(contructorFunction)
 	{
-		contructorFunction.prototype[slotName] = Prototype[slotName];
+		contructorFunction.prototype[slotName] = Proto[slotName];
 		contructorFunction.clone = function()
 		{
 			return new contructorFunction;
@@ -142,90 +175,75 @@ for(slotName in Prototype)
 }
 
 
-/****************************** Importer ******************************/
+/***************************** Importer *****************************/
 
 
-Importer = Prototype.clone().newSlot("basePath", "/").setSlots(
+Importer = Proto.clone().newSlot("basePath", "/").setSlots(
 {
-	ImportState: Prototype.clone().newSlot("completionCallback").newNumberSlots("importCount").setSlots(
-	{
-		init: function()
-		{
-			this._importedCount = 0;
-		},
-
-		completeImport: function()
-		{
-			this._importedCount ++;
-			if(this._importCount == this._importedCount)
-			{
-				this._completionCallback();
-			}
-		}
-	}),
-	
-	_importedPaths: {},
-	
-	init: function()
-	{
-		this._importedPaths = {};
-	},
-	
 	importPaths: function()
 	{
 		var pathsToImport = Array.prototype.slice.call(arguments);
 		
-		var importState = typeof pathsToImport[pathsToImport.length - 1] == "function" ? this.ImportState.clone().setCompletionCallback(pathsToImport.pop()) : null;
-		
-		
-		for(var i = 0; i < pathsToImport.length; i ++)
+		/*
+		var completionCallback = pathsToImport.pop();
+		if(typeof(completionCallback) != "function")
 		{
-			var pathToImport = this._basePath + pathsToImport[i];
-			
-			if(importState)
-				importState.incImportCount();
+			pathsToImport.push(completionCallback);
+			completionCallback = null;
+		}
+		*/
 
-			if(this._importedPaths[pathToImport])
-			{
-				importState.completeImport();
-			}
-			else
-			{
-				this._importedPaths[pathToImport] = true;
-				
-				var scriptElement = document.createElement("script");
-				scriptElement.language = "javascript";
-				scriptElement.type = "text/javascript";
-				if(importState)
-				{
-					scriptElement.onload = function()
-					{
-						importState.completeImport();
-					};
-				}
-				scriptElement.src = pathToImport + ".js";
-				document.getElementsByTagName('head').item(0).appendChild(scriptElement);
-			}
-		}
-		return this;
-	},
-	
-	addImportedPaths: function()
-	{
-		for(var i = 0; i < arguments.length; i ++)
+		var importCount = pathsToImport.length;
+		
+		while(pathsToImport.length)
 		{
-			this._importedPaths[this._basePath + path] = true;
+		    var basePath = this._basePath;
+		    if(basePath[this._basePath.length - 1] != "/")
+		        basePath += "/";
+		        
+		    var pathToImport = basePath + pathsToImport.shift();
+		    
+			/*
+		    var scriptElement = document.createElement("script");
+			scriptElement.language = "javascript";
+			scriptElement.type = "text/javascript";
+			scriptElement.src = pathToImport + ".js";
+			
+			if(completionCallback)
+			{
+				scriptElement.onload = function()
+				{
+					importCount --;
+					if(importCount == 0)
+					{
+						completionCallback();
+					}
+				}
+			}
+			
+			document.getElementsByTagName('head').item(0).appendChild(scriptElement);
+			*/
+			
+			document.write("<script type='text/javascript' src='" + pathToImport + ".js'></script>");
 		}
+		
 		return this;
 	}
 });
 
 Importer.setSlot("importPath", Importer.importPaths);
 
-/****************************** Array ******************************/
+
+/***************************** Array *****************************/
+
 
 Array.prototype.setSlotsIfAbsent(
 {
+	isEmpty: function()
+	{
+		return this.length == 0;
+	},
+
 	at: function(index)
 	{
 		if(index > 0)
@@ -521,87 +539,9 @@ Array.prototype.setSlotsIfAbsent(
 	}
 });
 
-/****************************** Number ******************************/
 
-Number.prototype.setSlots(
-{
-	milliseconds: function()
-	{
-		return this;
-	},
-	
-	repeat: function(callback)
-	{
-		for(var i = 0; i < this; i++)
-		{
-			callback(i);
-		}
-		return this;
-	}
-});
+/***************************** String *****************************/
 
-/****************************** Interval ******************************/
-
-Interval = Prototype.clone().newSlots("lowerBound", "excludesLowerBound", "upperBound", "excludesUpperBound").setSlots(
-{
-	init: function()
-	{
-		this._lowerBound = -Infinity;
-		this._upperBound = Infinity;
-	},
-
-	withBounds: function(lowerBound, upperBound)
-	{
-		return this.clone().setLowerBound(lowerBound).setUpperBound(upperBound);
-	},
-
-	includes: function(value)
-	{
-		return this.lowerBoundIncludes(value) && this.upperBoundIncludes(value);
-	},
-
-	lowerBoundIncludes: function(value)
-	{
-		if(value == null)
-			return false;
-
-		return this._excludesLowerBound ? value > this._lowerBound : value >= this._lowerBound;
-	},
-
-	upperBoundIncludes: function(value)
-	{
-		if(value == null)
-			return false;
-
-		return this._excludesUpperBound ? value < this._upperBound : value <= this._upperBound;
-	},
-
-	forEach: function(fun /*, thisp*/)
-	{
-		var len = this.length;
-		if (typeof fun != "function")
-			throw new TypeError();
-
-		if(this._lowerBound > this._upperBound || this._lowerBound == null || this._upperBound == null)
-			throw new Error("invalid bounds");
-
-
-		var thisp = arguments[1];
-		var start = this._lowerBound + (this._excludesLowerBound ? 1 : 0);
-		var end = this._upperBound - (this._excludesUpperBound ? 0 : 1);
-		for (var i = start; i < end; i++)
-		{
-			fun.call(thisp, i, i, this);
-		}
-	},
-
-	toString: function()
-	{
-		return (this.excludesLowerBound ? "(" : "[") + this._lowerBound + "," + this._upperBound + (this.excludesUpperBound ? ")" : "]");
-	}
-});
-
-/****************************** String ******************************/
 
 String.prototype.setSlotsIfAbsent(
 {
@@ -662,11 +602,95 @@ String.prototype.setSlotsIfAbsent(
 	}
 });
 
-/****************************** Uri ******************************/
-//NEEDS WORK!
+
+/***************************** Number *****************************/
 
 
-Uri = Prototype.clone().newSlots("protocol", "hostname", "port", "path", "queryString", "fragment").setSlots(
+Number.prototype.setSlots(
+{
+	milliseconds: function()
+	{
+		return this;
+	},
+	
+	repeat: function(callback)
+	{
+		for(var i = 0; i < this; i++)
+		{
+			callback(i);
+		}
+		return this;
+	}
+});
+
+
+/***************************** Interval *****************************/
+
+
+Interval = Proto.clone().newSlots("lowerBound", "excludesLowerBound", "upperBound", "excludesUpperBound").setSlots(
+{
+	init: function()
+	{
+		this._lowerBound = -Infinity;
+		this._upperBound = Infinity;
+	},
+
+	withBounds: function(lowerBound, upperBound)
+	{
+		return this.clone().setLowerBound(lowerBound).setUpperBound(upperBound);
+	},
+
+	includes: function(value)
+	{
+		return this.lowerBoundIncludes(value) && this.upperBoundIncludes(value);
+	},
+
+	lowerBoundIncludes: function(value)
+	{
+		if(value == null)
+			return false;
+
+		return this._excludesLowerBound ? value > this._lowerBound : value >= this._lowerBound;
+	},
+
+	upperBoundIncludes: function(value)
+	{
+		if(value == null)
+			return false;
+
+		return this._excludesUpperBound ? value < this._upperBound : value <= this._upperBound;
+	},
+
+	forEach: function(fun /*, thisp*/)
+	{
+		var len = this.length;
+		if (typeof fun != "function")
+			throw new TypeError();
+
+		if(this._lowerBound > this._upperBound || this._lowerBound == null || this._upperBound == null)
+			throw new Error("invalid bounds");
+
+
+		var thisp = arguments[1];
+		var start = this._lowerBound + (this._excludesLowerBound ? 1 : 0);
+		var end = this._upperBound - (this._excludesUpperBound ? 0 : 1);
+		for (var i = start; i < end; i++)
+		{
+			fun.call(thisp, i, i, this);
+		}
+	},
+
+	toString: function()
+	{
+		return (this.excludesLowerBound ? "(" : "[") + this._lowerBound + "," + this._upperBound + (this.excludesUpperBound ? ")" : "]");
+	}
+});
+
+
+/***************************** Uri *****************************/
+
+
+Uri = Proto.clone().newSlot("protocol", "http").newSlots("hostname", "port", "path", "queryString", "fragment").setSlots(
 {
 	withString: function(uriString)
 	{
@@ -726,12 +750,3 @@ Uri = Prototype.clone().newSlots("protocol", "hostname", "port", "path", "queryS
 		return uriString;
 	}
 });
-
-/****************************** Uri ******************************/
-Browser = Prototype.clone().setSlots(
-{
-	isInternetExplorer: function()
-	{
-		return navigator.appName.contains("Internet Explorer");
-	}
-})

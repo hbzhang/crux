@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <script type="text/javascript" src="javascript/Crux/Protos/Proto.js"></script>
+    <script type="text/javascript" src="javascript/Crux/Protos/Importer.js"></script>
+    <script type="text/javascript">
+		Importer.setBasePath("javascript/Crux/Protos").importPaths(
+		    "Array",
+		    "Browser",
+		    "Interval",
+		    "Number",
+		    "String",
+		    "Uri"
+		);
+		
+		Importer.setBasePath("javascript/TestApp").importPaths(
+		    "Protos/Hello",
+		    "Main"
+		)
+	</script>
+    
+  </head>
+  <body>
+  </body>
+</html>
