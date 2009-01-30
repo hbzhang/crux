@@ -12,5 +12,10 @@ Number.prototype.setSlots(
 			callback(i);
 		}
 		return this;
+	},
+
+	isEven: function()
+	{
+		return this % 2 == 0;
 	}
 });

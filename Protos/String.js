@@ -54,5 +54,12 @@ String.prototype.setSlotsIfAbsent(
 	contains: function(aString)
 	{
 		return this.indexOf(aString) > -1;
+	},
+	
+	asUncapitalized: function()
+	{
+		return this.replace(/\b[A-Z]/g, function(match){
+			return match.toLowerCase();
+		});
 	}
 });

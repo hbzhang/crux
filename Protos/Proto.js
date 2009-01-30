@@ -87,12 +87,14 @@ Proto.setSlots(
 	
 	newSlot: function(name, initialValue)
 	{
+		if(initialValue === undefined) { initialValue = null };
+		
 		this["_" + name] = initialValue;
 		this[name] = function()
 		{
 			return this["_" + name];
 		}
-		this["set" + name.asCapitalized()] = function(newValue)
+		this["set" + (name.indexOf("is") == 0 ? name.slice(2) : name).asCapitalized()] = function(newValue)
 		{
 			this["_" + name] = newValue;
 			return this;
@@ -157,6 +159,9 @@ Proto.setSlots(
 		return this;
 	}
 });
+
+Proto.newSlot("type", "Proto");
+Proto.removeSlot = Proto.removeSlots;
 
 for(slotName in Proto)
 {

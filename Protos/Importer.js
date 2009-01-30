@@ -18,9 +18,9 @@ Importer = Proto.clone().newSlot("basePath", "/").setSlots(
 		while(pathsToImport.length)
 		{
 		    var basePath = this._basePath;
-		    if(basePath[this._basePath.length - 1] != "/")
+		    if(basePath.length && basePath[basePath.length - 1] != "/")
 		        basePath += "/";
-		        
+
 		    var pathToImport = basePath + pathsToImport.shift();
 		    
 			/*

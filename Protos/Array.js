@@ -4,6 +4,11 @@ Array.prototype.setSlotsIfAbsent(
 	{
 		return this.length == 0;
 	},
+	
+	concatInPlace: function(anArray)
+	{
+		this.push.apply(this, anArray);
+	},
 
 	at: function(index)
 	{
@@ -19,14 +24,17 @@ Array.prototype.setSlotsIfAbsent(
 	
 	removeElements: function(elements)
 	{
-		elements.forEach(function(e)
+		elements.forEach(function(e){ this.remove(e) }, this);
+		return this;
+	},
+	
+	remove: function(e)
+	{
+		var i = this.indexOf(e);
+		if(i > 0)
 		{
-			var i = this.indexOf(e);
-			if(i > 0)
-			{
-				this.removeAt(i);
-			}
-		}, this);
+			this.removeAt(i);
+		}
 		return this;
 	},
 

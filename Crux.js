@@ -91,12 +91,14 @@ Proto.setSlots(
 	
 	newSlot: function(name, initialValue)
 	{
+		if(initialValue === undefined) { initialValue = null };
+		
 		this["_" + name] = initialValue;
 		this[name] = function()
 		{
 			return this["_" + name];
 		}
-		this["set" + name.asCapitalized()] = function(newValue)
+		this["set" + (name.indexOf("is") == 0 ? name.slice(2) : name).asCapitalized()] = function(newValue)
 		{
 			this["_" + name] = newValue;
 			return this;
@@ -162,6 +164,9 @@ Proto.setSlots(
 	}
 });
 
+Proto.newSlot("type", "Proto");
+Proto.removeSlot = Proto.removeSlots;
+
 for(slotName in Proto)
 {
 	[Array, String, Number, Date].forEach(function(contructorFunction)
@@ -198,9 +203,9 @@ Importer = Proto.clone().newSlot("basePath", "/").setSlots(
 		while(pathsToImport.length)
 		{
 		    var basePath = this._basePath;
-		    if(basePath[this._basePath.length - 1] != "/")
+		    if(basePath.length && basePath[basePath.length - 1] != "/")
 		        basePath += "/";
-		        
+
 		    var pathToImport = basePath + pathsToImport.shift();
 		    
 			/*
@@ -243,6 +248,11 @@ Array.prototype.setSlotsIfAbsent(
 	{
 		return this.length == 0;
 	},
+	
+	concatInPlace: function(anArray)
+	{
+		this.push.apply(this, anArray);
+	},
 
 	at: function(index)
 	{
@@ -258,14 +268,17 @@ Array.prototype.setSlotsIfAbsent(
 	
 	removeElements: function(elements)
 	{
-		elements.forEach(function(e)
+		elements.forEach(function(e){ this.remove(e) }, this);
+		return this;
+	},
+	
+	remove: function(e)
+	{
+		var i = this.indexOf(e);
+		if(i > 0)
 		{
-			var i = this.indexOf(e);
-			if(i > 0)
-			{
-				this.removeAt(i);
-			}
-		}, this);
+			this.removeAt(i);
+		}
 		return this;
 	},
 
@@ -540,6 +553,18 @@ Array.prototype.setSlotsIfAbsent(
 });
 
 
+/***************************** Browser *****************************/
+
+
+Browser = Proto.clone().setSlots(
+{
+	isInternetExplorer: function()
+	{
+		return navigator.appName.contains("Internet Explorer");
+	}
+})
+
+
 /***************************** String *****************************/
 
 
@@ -599,6 +624,13 @@ String.prototype.setSlotsIfAbsent(
 	contains: function(aString)
 	{
 		return this.indexOf(aString) > -1;
+	},
+	
+	asUncapitalized: function()
+	{
+		return this.replace(/\b[A-Z]/g, function(match){
+			return match.toLowerCase();
+		});
 	}
 });
 
@@ -620,6 +652,11 @@ Number.prototype.setSlots(
 			callback(i);
 		}
 		return this;
+	},
+
+	isEven: function()
+	{
+		return this % 2 == 0;
 	}
 });
 
