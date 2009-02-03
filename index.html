@@ -1,23 +1,13 @@
 <html>
   <head>
-    <script type="text/javascript" src="javascript/Crux/Protos/Proto.js"></script>
-    <script type="text/javascript" src="javascript/Crux/Protos/Importer.js"></script>
-    <script type="text/javascript">
-		Importer.setBasePath("javascript/Crux/Protos").importPaths(
-		    "Array",
-		    "Browser",
-		    "Interval",
-		    "Number",
-		    "String",
-		    "Uri"
-		);
-		
-		Importer.setBasePath("javascript/TestApp").importPaths(
-		    "Protos/Hello",
-		    "Main"
-		)
+    <script type="text/javascript" src="Protos/Proto.js"></script>
+	<script type="text/javascript" src="Protos/Importer.js"></script>
+	<script type="text/javascript">
+		Importer.importPath("Protos", function()
+		{
+			(5).repeat(function(){ console.log("It worked!") })
+		});
 	</script>
-    
   </head>
   <body>
   </body>

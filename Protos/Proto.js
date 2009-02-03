@@ -30,6 +30,8 @@ Proto.setSlot = function(name, value)
 	return this;
 };
 
+Proto.uniqueIdCounter = 0;
+
 Proto.setSlots = function(slots)
 {
 	for(name in slots)
@@ -51,9 +53,15 @@ Proto.setSlots(
 		
 		var obj = new constructor;
 		obj._proto = this;
+		obj._uniqueId = ++ Proto.uniqueIdCounter;
 		if(obj.init)
 			obj.init();
 		return obj
+	},
+	
+	uniqueId: function()
+	{
+		return this._uniqueId;
 	},
 	
 	proto: function()
