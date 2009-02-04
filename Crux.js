@@ -196,7 +196,6 @@ Importer = Proto.clone().setType("Importer")
 .setSlot("_imports", [])
 .setSlot("_importedPaths", [])
 .setSlot("_currentPathIndex", 0)
-.setSlot("_currentPath", "")
 .setSlots(
 {
 	importPaths: function()
@@ -218,16 +217,10 @@ Importer = Proto.clone().setType("Importer")
 		for(var i = 0; i < pathsToImport.length; i ++)
 		{
 			var pathToImport = basePath + pathsToImport[i];
-			//console.log("pathToImport: " + pathToImport);
 			if(!this.hasImportedPath(pathToImport))
 			{
 				this._importedPaths.push(pathToImport);
 				this.addRemainingPath(pathToImport);
-				
-				if(!this._currentPath)
-				{
-					this._currentPath = pathToImport;
-				}
 				
 				this.addPathToImport(pathToImport, anImport);
 				
@@ -235,7 +228,24 @@ Importer = Proto.clone().setType("Importer")
 			};
 		}
 		
+		this.setPathFromCurrentPath();
+		
 		return this;
+	},
+	
+	setPathFromCurrentPath: function()
+	{
+		var currentPath = this.currentPath();
+		if(currentPath)
+		{
+			var pathComponents = currentPath.split("/");
+			this._path = pathComponents.slice(0, pathComponents.length - 1).join("/");
+		}
+	},
+	
+	currentPath: function()
+	{
+		return this._importedPaths[this._currentPathIndex];
 	},
 	
 	addPathToImport: function(path, anImport)
@@ -246,7 +256,6 @@ Importer = Proto.clone().setType("Importer")
 		if(!imports)
 		{
 			imports = [];
-			//console.log("adding imports at " + pathToImport);
 			this._imports[path] = imports;
 		}
 		imports.push(anImport);
@@ -254,15 +263,13 @@ Importer = Proto.clone().setType("Importer")
 	
 	addRemainingPath: function(remainingPath)
 	{
-		var currentPathImports = this._imports[this._currentPath];
+		var currentPath = this.currentPath();
+		var currentPathImports = this._imports[currentPath];
 		if(currentPathImports)
 		{
-			//console.log("addining remaining path " + remainingPath + " at " + this._currentPath);
 			for(var i = 0; i < currentPathImports.length; i ++)
 			{
 				var anImport = currentPathImports[i];
-				//console.log("anImport._remainingPaths: " + anImport._remainingPaths.join(","));
-				//console.log("anImport._completionCallback: " + anImport._completionCallback);
 				this.addPathToImport(remainingPath, anImport);
 			}
 		}
@@ -285,15 +292,9 @@ Importer = Proto.clone().setType("Importer")
 	
 	importedPath: function(path)
 	{
-		//console.log("importedPath: " + path);
-		//console.log("this._importedPaths: " + this._importedPaths.join(","));
 		this._currentPathIndex ++;
-		if(this._importedPaths[this._currentPathIndex])
-		{
-			this._currentPath = this._importedPaths[this._currentPathIndex];
-			var pathComponents = this._currentPath.split("/");
-			this._path = pathComponents.slice(0, pathComponents.length - 1).join("/");
-		}
+		
+		this.setPathFromCurrentPath();
 		
 		var incompleteImports = []
 		if(this._imports[path])
@@ -302,7 +303,6 @@ Importer = Proto.clone().setType("Importer")
 			for(var i = 0; i < imports.length; i ++)
 			{
 				var anImport = imports[i];
-				//console.log(anImport._completionCallback);
 				if(!anImport.importedPath(path).isComplete()){ incompleteImports.push(anImport) }
 			}
 		}
@@ -335,13 +335,8 @@ Import = Proto.clone().setType("Import")
 		{
 			this._remainingPaths.splice(pathIndex, 1);
 		}
-		//console.log("importedPath: " + path);
-		//console.log("this._remainingPaths: " + this._remainingPaths.join(","));
-		//console.log("this._remainingPaths.length: " + this._remainingPaths.length);
-		//console.log("this._completionCallback: " + this._completionCallback);
 		if(!this._remainingPaths.length && this._completionCallback)
 		{
-			//console.log("_completionCallback");
 			this._completionCallback()
 		}
 		return this;
