@@ -13,7 +13,6 @@ Importer = Proto.clone().setType("Importer")
 			{
 				var path = pathMap[name];
 			}
-			if(name == "Crux" && (path == "Proto" || path == "Importer")){ continue }
 			
 			this._imports.push(Import.clone().setName(name).setPath(path));
 		}
@@ -50,6 +49,7 @@ Importer = Proto.clone().setType("Importer")
 		for(var i = 0; i < this._imports.length; i ++)
 		{
 			var anImport = this._imports[i];
+			
 			if(anImport.name() == listName)
 			{
 				this.importCompleted(anImport.setComplete(true).setImportNames(importNames));
@@ -68,7 +68,12 @@ Importer = Proto.clone().setType("Importer")
 				var importNames = nextImport.importNames();
 				for(var i = 0; i < importNames.length; i ++)
 				{
-					this._scriptPaths.push(nextImport.path() + "/" + importNames[i] + ".js");
+					var importName = importNames[i];
+					//console.log(name + ":" + path);
+					if(!(nextImport.name() == "Crux" && (importName == "Proto" || importName == "Importer")))
+					{
+						this._scriptPaths.push(nextImport.path() + "/" + importName + ".js");
+					}
 				}
 			}
 		}

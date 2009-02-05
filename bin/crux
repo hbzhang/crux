@@ -6,17 +6,24 @@ importDirPaths := System args slice(1)
 Object squareBrackets := Object getSlot("list")
 
 if(importDirPaths isEmpty,
-	writeln("usage: crux [import directory paths]")
+	File standardError write("usage: crux [import directory paths]\n")
 	System exit(1)
 )
 
 importDirPaths foreach(importDirPath,
 	importFile := File with(Path with(importDirPath, "Import.js"))
 	if(importFile exists not,
-		writeln("Unable to locate import file ", importFile path)
+		File standardError write("Unable to locate import file " .. importFile path .. "\n")
 		System exit(1)
 	)
-	doString(importFile contents split("\n") slice(1, -1) join) foreach(protoName,
-		writeln(File with(Path with(importDirPath, protoName .. ".js")) contents)
+	evalString := importFile contents split("\n") slice(1, -1) join("\n")
+	e := try(
+		doString(evalString) foreach(protoName,
+			writeln(File with(Path with(importDirPath, protoName .. ".js")) contents)
+		)
+	)
+	if(e,
+		File standardError write("Malformed import file: " .. importFile path .. "\n")
+		File standardError write("Parsed list as:\n" .. evalString .. "\n")
 	)
 )

@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo cp bin/crux /usr/local/bin/crux && sudo chmod 755 /usr/local/bin/crux
+cp bin/crux /usr/local/bin/crux && chmod 755 /usr/local/bin/crux
