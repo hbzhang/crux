@@ -1,0 +1,1 @@
+Hello.clone().setFirstName("Crux").setLastName("User").sayHello();

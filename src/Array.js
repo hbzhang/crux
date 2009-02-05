@@ -28,6 +28,18 @@ Array.prototype.setSlotsIfAbsent(
 		return this;
 	},
 	
+	append: function(e)
+	{
+		this.push(e);
+		return this;
+	},
+	
+	prepend: function(e)
+	{
+		this.unshift(e);
+		return this;
+	},
+	
 	remove: function(e)
 	{
 		var i = this.indexOf(e);

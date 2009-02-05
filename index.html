@@ -1,15 +1,17 @@
 <html>
   <head>
-    <script type="text/javascript" src="Protos/Proto.js"></script>
-	<script type="text/javascript" src="Protos/Importer.js"></script>
+    <script type="text/javascript" src="lib/Crux.js"></script>
 	<script type="text/javascript">
-		Importer.importPath("Protos", function()
+		window.onload = function()
 		{
-			(3).repeat(function()
+			Proto.clone().setSlots(
 			{
-				console.log("it worked");
-			});
-		});
+				welcomeCruxUser: function()
+				{
+					document.body.innerHTML = "<h1>Welcome to Crux!</h1>";
+				}
+			}).welcomeCruxUser();
+		}
 	</script>
   </head>
   <body>
