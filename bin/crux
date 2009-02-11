@@ -1,12 +1,12 @@
 #!/usr/local/bin/io
 
-importDirPaths := System args slice(1)
+importDirPaths := System args slice(2)
 
 
 Object squareBrackets := Object getSlot("list")
 
 if(importDirPaths isEmpty,
-	File standardError write("usage: crux [import directory paths]\n")
+	File standardError write("usage: crux build [import directory paths]\n")
 	System exit(1)
 )
 
