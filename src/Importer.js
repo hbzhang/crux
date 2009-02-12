@@ -18,12 +18,9 @@ Importer = Proto.clone().setType("Importer")
 		}
 		
 		var importsCopy = Array.prototype.slice.call(this._imports);
-		window.onload = function()
+		for(var i = 0; i < importsCopy.length; i ++)
 		{
-			for(var i = 0; i < importsCopy.length; i ++)
-			{
-				importsCopy[i].start();
-			}
+			importsCopy[i].start();
 		}
 	},
 	
