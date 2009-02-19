@@ -33,5 +33,10 @@ Browser = Proto.clone().setSlots(
 		{
 			return null;
 		}
+	},
+	
+	locationAsUri: function()
+	{
+		return Uri.withString(window.location.href);
 	}
 })
