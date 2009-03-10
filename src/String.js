@@ -61,5 +61,10 @@ String.prototype.setSlotsIfAbsent(
 		return this.replace(/\b[A-Z]/g, function(match){
 			return match.toLowerCase();
 		});
+	},
+	
+	containsCapitals: function()
+	{
+		return this.search(/[A-Z]/g) > -1;
 	}
 });
