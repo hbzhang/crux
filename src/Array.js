@@ -261,7 +261,79 @@ Array.prototype.setSlotsIfAbsent(
 
 		return null;
 	},
+	
+	max: function(callback)
+	{
+		var m = undefined;
+		
+		for(var i = 0; i < this.length; i++)
+		{
+			var v = callback(this[i]);
+			
+			if(m == undefined || v > m)
+			{
+				m = v;
+			}
+		}
 
+		return m;
+	},
+	
+	maxIndex: function(callback)
+	{
+		var m = undefined;
+		var index = 0;
+		
+		for(var i = 0; i < this.length; i++)
+		{
+			var v = callback(this[i]);
+			
+			if(m == undefined || v > m)
+			{
+				m = v;
+				index = i;
+			}
+		}
+
+		return index;
+	},
+	
+	min: function(callback)
+	{
+		var m = undefined;
+		
+		for(var i = 0; i < this.length; i++)
+		{
+			var v = callback(this[i]);
+			
+			if(m == undefined || v < m)
+			{
+				m = v;
+			}
+		}
+
+		return m;
+	},
+
+	minIndex: function(callback)
+	{
+		var m = undefined;
+		var index = 0;
+		
+		for(var i = 0; i < this.length; i++)
+		{
+			var v = callback(this[i]);
+			
+			if(m == undefined || v < m)
+			{
+				m = v;
+				index = i;
+			}
+		}
+
+		return index;
+	},
+	
 	some: function(fun /*, thisp*/)
 	{
 		var len = this.length;
