@@ -93,6 +93,11 @@ Proto.setSlots(
 		return this;
 	},
 	
+	setterName: function(slotName)
+	{
+		return "set" + (slotName.indexOf("is") == 0 ? slotName.slice(2) : slotName).asCapitalized();
+	},
+	
 	newSlot: function(name, initialValue)
 	{
 		if(initialValue === undefined) { initialValue = null };
@@ -102,11 +107,18 @@ Proto.setSlots(
 		{
 			return this["_" + name];
 		}
-		this["set" + (name.indexOf("is") == 0 ? name.slice(2) : name).asCapitalized()] = function(newValue)
+		this[this.setterName(name)] = function(newValue)
 		{
 			this["_" + name] = newValue;
 			return this;
 		}
+		return this;
+	},
+	
+	aliasSlot: function(slotName, aliasName)
+	{
+		this[aliasName] = this[slotName];
+		this[this.setterName(aliasName)] = this[this.setterName(slotName)];
 		return this;
 	},
 
