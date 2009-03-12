@@ -150,7 +150,20 @@ Array.prototype.setSlotsIfAbsent(
 		var args = this.argsAsArray(arguments).slice(1);
 		return this.sort(function(x, y)
 		{
-			return x[functionName].apply(functionName, args) < y[functionName].apply(functionName, args);
+			var xRes = x[functionName].apply(x, args);
+			var yRes = y[functionName].apply(y, args);
+			if(xRes < yRes)
+			{
+				return -1;
+			}
+			else if(yRes < xRes)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
 		});
 	},
 
