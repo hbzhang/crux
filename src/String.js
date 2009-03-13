@@ -63,6 +63,13 @@ String.prototype.setSlotsIfAbsent(
 		});
 	},
 	
+	asCapitalized: function()
+	{
+		return this.replace(/\b[A-Z]/g, function(match){
+			return match.toUpperCase();
+		});
+	},
+	
 	containsCapitals: function()
 	{
 		return this.search(/[A-Z]/g) > -1;
