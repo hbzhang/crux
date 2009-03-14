@@ -43,7 +43,7 @@ Array.prototype.setSlotsIfAbsent(
 	remove: function(e)
 	{
 		var i = this.indexOf(e);
-		if(i > 0)
+		if(i > -1)
 		{
 			this.removeAt(i);
 		}
