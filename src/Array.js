@@ -406,5 +406,10 @@ Array.prototype.setSlotsIfAbsent(
 	contains: function(element)
 	{
 		return this.indexOf(element) > -1;
+	},
+	
+	removeFirst: function ()
+	{
+		return this.shift();
 	}
 });
