@@ -112,6 +112,11 @@ Proto.setSlots(
 			this["_" + name] = newValue;
 			return this;
 		}
+		this["set" + name.asCapitalized()] = function(newValue)
+		{
+			this["_" + name] = newValue;
+			return this;
+		}
 		return this;
 	},
 	
@@ -119,6 +124,7 @@ Proto.setSlots(
 	{
 		this[aliasName] = this[slotName];
 		this[this.setterName(aliasName)] = this[this.setterName(slotName)];
+		this[this.setterName("set" + aliasName.asCapitalized())] = this["set" + slotName.asCapitalized()];
 		return this;
 	},
 
