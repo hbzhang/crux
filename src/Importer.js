@@ -66,7 +66,6 @@ Importer = Proto.clone().setType("Importer")
 				for(var i = 0; i < importNames.length; i ++)
 				{
 					var importName = importNames[i];
-					//console.log(name + ":" + path);
 					if(!(nextImport.name() == "Crux" && (importName == "Proto" || importName == "Importer")))
 					{
 						this._scriptPaths.push(nextImport.path() + "/" + importName + ".js");

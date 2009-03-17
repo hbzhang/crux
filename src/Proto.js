@@ -44,19 +44,40 @@ Proto.setSlots = function(slots)
 	return this;
 };
 
+Proto_constructor = new Function;
+
+RUN_TEST = function()
+{
+	var start = new Date;
+	for(var i = 0; i < 10000; i ++)
+	{
+		Proto.clone();
+	}
+	var clone = (new Date) - start;
+	
+	var start = new Date;
+	for(var i = 0; i < 10000; i ++)
+	{
+		Proto.clone2();
+	}
+	var clone2 = (new Date) - start;
+	alert(clone2 / clone);
+}
+
 Proto.setSlots(
 {
+	constructor: new Function,
+	
 	clone: function()
 	{
-		var constructor = new Function;
-		constructor.prototype = this;
+		Proto_constructor.prototype = this;
 		
-		var obj = new constructor;
+		var obj = new Proto_constructor;
 		obj._proto = this;
 		obj._uniqueId = ++ Proto.uniqueIdCounter;
 		if(obj.init)
 			obj.init();
-		return obj
+		return obj;
 	},
 	
 	uniqueId: function()
@@ -98,13 +119,43 @@ Proto.setSlots(
 		return "set" + (slotName.indexOf("is") == 0 ? slotName.slice(2) : slotName).asCapitalized();
 	},
 	
+	printSlotCalls: function()
+	{
+		var calls = [];
+		for(var name in SlotCalls)
+		{
+		  var o = {};
+		  o.name = name;
+		  o.count = SlotCalls[name];
+		  calls.push(o);
+		}
+		calls.sort(function(x, y){ return x.count - y.count });
+		for(var i = 0; i < calls.length; i ++)
+		{
+		  console.log(calls[i].name + ":" + calls[i].count);
+		}
+	},
+	
 	newSlot: function(name, initialValue)
 	{
+		/*
+		if(!window.SlotCalls)
+		{
+			window.SlotCalls = {};
+		}
+		*/
 		if(initialValue === undefined) { initialValue = null };
 		
 		this["_" + name] = initialValue;
 		this[name] = function()
 		{
+			/*
+			if(SlotCalls[name] === undefined)
+			{
+				SlotCalls[name] = 0;
+			}
+			SlotCalls[name] ++;
+			*/
 			return this["_" + name];
 		}
 		this[this.setterName(name)] = function(newValue)
