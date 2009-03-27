@@ -74,7 +74,7 @@ if(!window.console)
 				style.position = "absolute";
 				style.x = 0;
 				style.y = 0;
-				style.width = 200;
+				style.width = 300;
 				style.height = 400;
 				style.zIndex = 2000;
 				style.background = "#FFFFFF";
