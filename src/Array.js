@@ -411,5 +411,53 @@ Array.prototype.setSlotsIfAbsent(
 	removeFirst: function ()
 	{
 		return this.shift();
-	}
+	},
+	
+	hasPrefix: function(otherArray)
+	{
+		if(this.length < otherArray.length) { return false; }
+		
+		for(var i = 0; i < this.length; i ++)
+		{
+			if(this[i] != otherArray[i]) return false;
+		}
+		
+		return true;
+	},
+	
+	toString: function()
+	{
+		var s = "[";
+		
+		for(var i = 0; i < this.length; i ++)
+		{
+			var value = this[i];
+
+			if (i != 0) s = s + ","
+
+			if(typeof(value) == "string")
+			{
+				s = s + "\"" + value + "\"";
+			}
+			else
+			{
+				s = s + value;
+			}
+		}
+		
+		return s + "]";
+	},
+
+	isEqual: function(otherArray)
+	{
+		if(this.length != otherArray.length) { return false; }
+		
+		for(var i = 0; i < this.length; i ++)
+		{
+			if(this[i] != otherArray[i]) return false;
+		}
+		
+		return true;
+	}	
+	
 });
