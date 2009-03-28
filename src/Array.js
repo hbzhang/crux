@@ -1,5 +1,12 @@
 Array.prototype.setSlotsIfAbsent(
 {
+	init: function()
+	{
+		var args = [0, this.length];
+		args.concatInPlace(this.slice());
+		this.splice.apply(this, args);
+	},
+	
 	isEmpty: function()
 	{
 		return this.length == 0;

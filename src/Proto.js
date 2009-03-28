@@ -46,24 +46,6 @@ Proto.setSlots = function(slots)
 
 Proto_constructor = new Function;
 
-RUN_TEST = function()
-{
-	var start = new Date;
-	for(var i = 0; i < 10000; i ++)
-	{
-		Proto.clone();
-	}
-	var clone = (new Date) - start;
-	
-	var start = new Date;
-	for(var i = 0; i < 10000; i ++)
-	{
-		Proto.clone2();
-	}
-	var clone2 = (new Date) - start;
-	alert(clone2 / clone);
-}
-
 Proto.setSlots(
 {
 	constructor: new Function,
@@ -251,4 +233,3 @@ for(slotName in Proto)
 		}
 	});
 }
-
