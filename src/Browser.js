@@ -26,8 +26,8 @@ Browser = Proto.clone().setSlots(
 	{
 		if(this.isGecko())
 		{
-			var index = USER_AGENT.indexOf("Firefox");
-			return (index == -1) ? 2.0 : parseFloat(USER_AGENT.substring(index + "Firefox".length + 1));
+			var index = this.userAgent().indexOf("Firefox");
+			return (index == -1) ? 2.0 : parseFloat(this.userAgent().substring(index + "Firefox".length + 1));
 		}
 		else
 		{
