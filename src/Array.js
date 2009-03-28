@@ -282,7 +282,8 @@ Array.prototype.setSlotsIfAbsent(
 		
 		for(var i = 0; i < this.length; i++)
 		{
-			var v = callback(this[i]);
+			var v = this[i];
+			if(callback) v = callback(v);
 			
 			if(m == undefined || v > m)
 			{
@@ -301,8 +302,9 @@ Array.prototype.setSlotsIfAbsent(
 		
 		for(var i = 0; i < this.length; i++)
 		{
-			var v = callback(this[i]);
-			
+			var v = this[i];
+			if(callback) v = callback(v);
+						
 			if(m == undefined || v > m)
 			{
 				m = v;
@@ -320,8 +322,9 @@ Array.prototype.setSlotsIfAbsent(
 		
 		for(var i = 0; i < this.length; i++)
 		{
-			var v = callback(this[i]);
-			
+			var v = this[i];
+			if(callback) v = callback(v);
+						
 			if(m == undefined || v < m)
 			{
 				m = v;
@@ -339,8 +342,9 @@ Array.prototype.setSlotsIfAbsent(
 		
 		for(var i = 0; i < this.length; i++)
 		{
-			var v = callback(this[i]);
-			
+			var v = this[i];
+			if(callback) v = callback(v);
+						
 			if(m == undefined || v < m)
 			{
 				m = v;
