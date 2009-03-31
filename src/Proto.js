@@ -221,15 +221,3 @@ Proto.setSlots(
 
 Proto.newSlot("type", "Proto");
 Proto.removeSlot = Proto.removeSlots;
-
-for(slotName in Proto)
-{
-	[Array, String, Number, Date].forEach(function(contructorFunction)
-	{
-		contructorFunction.prototype[slotName] = Proto[slotName];
-		contructorFunction.clone = function()
-		{
-			return new contructorFunction;
-		}
-	});
-}
