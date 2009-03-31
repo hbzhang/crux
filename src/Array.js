@@ -469,6 +469,11 @@ Array.prototype.setSlotsIfAbsent(
 		}
 		
 		return true;
-	}	
+	},
 	
+	elementWith: function(accessorFunctionName, value)
+	{
+		var e = this[this.mapByCalling(accessorFunctionName).indexOf(value)];
+		return e === undefined ? null : e;
+	}	
 });
