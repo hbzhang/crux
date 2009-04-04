@@ -13,6 +13,16 @@ Number.prototype.setSlots(
 		}
 		return this;
 	},
+	
+	map: function()
+	{
+		var a = [];
+		for(var i = 0; i < this; i ++)
+		{
+			a.push(i);
+		}
+		return Array.prototype.map.apply(a, arguments);
+	},
 
 	isEven: function()
 	{
