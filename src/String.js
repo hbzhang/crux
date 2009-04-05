@@ -56,6 +56,20 @@ String.prototype.setSlotsIfAbsent(
 		return this.indexOf(aString) > -1;
 	},
 	
+	before: function(aString)
+	{
+		var index = this.indexOf(aString);
+		if(index == -1) return this;
+		return this.slice(0, index); 
+	},
+	
+	after: function(aString)
+	{
+		var index = this.indexOf(aString);
+		if(index == -1) return this;
+		return this.slice(index);
+	},
+	
 	asUncapitalized: function()
 	{
 		return this.replace(/\b[A-Z]/g, function(match) {
