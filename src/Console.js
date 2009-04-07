@@ -4,10 +4,11 @@ if(!window.console)
 	.newSlot("isEnabled", true)
 	.setSlots(
 	{
-		log: function(message)
+		log: function()
 		{
 			if(this._isEnabled)
 			{
+				var message = this.argsAsArray(arguments).join("");
 				if(document.body)
 				{
 					this.appendMessageElement(message);
@@ -58,7 +59,8 @@ if(!window.console)
 		{
 			this.initConsoleElement();
 			var entryElement = document.createElement("div");
-			entryElement.innerText = message.toString();
+			//entryElement.innerText = message.toString();
+			entryElement.innerHTML = message.toString();
 			this._consoleElement.appendChild(entryElement);
 			this._consoleElement.scrollTop = this._consoleElement.scrollHeight;
 			
