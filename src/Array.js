@@ -286,8 +286,9 @@ Array.prototype.setSlotsIfAbsent(
 	{
 		var m = undefined;
 		var mObject = undefined;
+		var length = this.length;
 		
-		for(var i = 0; i < this.length; i++)
+		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
@@ -306,8 +307,9 @@ Array.prototype.setSlotsIfAbsent(
 	{
 		var m = undefined;
 		var index = 0;
+		var length = this.length;
 		
-		for(var i = 0; i < this.length; i++)
+		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
@@ -326,8 +328,9 @@ Array.prototype.setSlotsIfAbsent(
 	{
 		var m = undefined;
 		var mObject = undefined;
+		var length = this.length;
 		
-		for(var i = 0; i < this.length; i++)
+		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
@@ -346,8 +349,9 @@ Array.prototype.setSlotsIfAbsent(
 	{
 		var m = undefined;
 		var index = 0;
+		var length = this.length;
 		
-		for(var i = 0; i < this.length; i++)
+		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
@@ -360,6 +364,23 @@ Array.prototype.setSlotsIfAbsent(
 		}
 
 		return index;
+	},
+	
+	sum: function(callback)
+	{
+		var m = undefined;
+		var sum = 0;
+		var length = this.length;
+		
+		for(var i = 0; i < length; i++)
+		{
+			var v = this[i];
+			if(callback) v = callback(v);
+						
+			sum = sum + v;
+		}
+
+		return sum;
 	},
 	
 	some: function(fun /*, thisp*/)
