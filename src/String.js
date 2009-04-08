@@ -87,5 +87,15 @@ String.prototype.setSlotsIfAbsent(
 	containsCapitals: function()
 	{
 		return this.search(/[A-Z]/g) > -1;
+	},
+	
+	charAt: function(i)
+	{
+		return this.slice(i, i + 1);
+	},
+	
+	first: function()
+	{
+		return this.slice(0, 1);
 	}
 });
