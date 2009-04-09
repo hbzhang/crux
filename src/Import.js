@@ -1,5 +1,6 @@
 Importer.importedList("Crux",
-["Proto",
+[
+"Proto",
 "Browser",
 "Extensions",
 "Importer",
@@ -8,5 +9,6 @@ Importer.importedList("Crux",
 "Interval",
 "Number",
 "String",
-"Uri"]
+"Uri",
+"PropertyList"]
 );
