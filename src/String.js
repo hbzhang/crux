@@ -1,5 +1,20 @@
 String.prototype.setSlotsIfAbsent(
 {
+	replaceSeq: function(a, b)
+	{
+		var s = this;
+		var newString;
+		
+		while(true)
+		{
+			var newString = s.replace(a, b)
+			if(newString == s) return newString;;
+			s = newString;
+		}
+		
+		return this;
+	},
+	
 	repeated: function(times)
 	{
 		var result = "";
