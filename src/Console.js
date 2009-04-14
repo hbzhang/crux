@@ -1,57 +1,47 @@
 if(!window.console)
 {
 	console = Proto.clone()
-	.newSlot("isEnabled", true)
 	.setSlots(
 	{
 		log: function()
 		{
-			if(this._isEnabled)
+			var message = this.argsAsArray(arguments).join("");
+			if(document.body)
 			{
-				var message = this.argsAsArray(arguments).join("");
-				if(document.body)
-				{
-					this.appendMessageElement(message);
-				}
-				else
-				{
-					alert("log: " + message);
-				}
+				this.appendMessageElement(message);
+			}
+			else
+			{
+				alert("log: " + message);
 			}
 		},
 		
 		warn: function(message)
 		{
-			if(this._isEnabled)
+			if(document.body)
 			{
-				if(document.body)
-				{
-					this.appendMessageElement(message);
-					var e = this.appendMessageElement(message);
-					e.style.color = "#FFFF00";
-					e.style.background = "#666666";
-				}
-				else
-				{
-					alert("warn: " + message);
-				}
+				this.appendMessageElement(message);
+				var e = this.appendMessageElement(message);
+				e.style.color = "#FFFF00";
+				e.style.background = "#666666";
+			}
+			else
+			{
+				alert("warn: " + message);
 			}
 		},
 		
 		error: function(message)
 		{
-			if(this._isEnabled)
+			if(document.body)
 			{
-				if(document.body)
-				{
-					this.appendMessageElement(message);
-					var e = this.appendMessageElement(message);
-					e.style.color = "#FF0000";
-				}
-				else
-				{
-					alert("error: " + message);
-				}
+				this.appendMessageElement(message);
+				var e = this.appendMessageElement(message);
+				e.style.color = "#FF0000";
+			}
+			else
+			{
+				alert("error: " + message);
 			}
 		},
 		

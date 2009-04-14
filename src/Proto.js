@@ -114,7 +114,7 @@ Proto.setSlots(
 		calls.sort(function(x, y){ return x.count - y.count });
 		for(var i = 0; i < calls.length; i ++)
 		{
-		  console.log(calls[i].name + ":" + calls[i].count);
+		  Logger.log(calls[i].name + ":" + calls[i].count);
 		}
 	},
 	
