@@ -21,7 +21,15 @@ Logger = Proto.clone().setType("Logger")
 		this.log = function(){}
 		this.warn = function(){}
 		this.error = function(){}
+		
+		//if(Browser.isGecko() && window.console) return;
+		
+		window.console = {
+			log: function(){},
+			warn: function(){},
+			error: function(){}
+		}
 	}
 });
 
-if(ENVIRONMENT == "production") Logger.disable();
+if(window.ENVIRONMENT == "production") Logger.disable();
