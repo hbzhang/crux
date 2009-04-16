@@ -1,5 +1,10 @@
 Number.prototype.setSlots(
 {
+	cssString: function() 
+	{
+		this.toString();
+	},
+	
 	milliseconds: function()
 	{
 		return this;

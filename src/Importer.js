@@ -49,7 +49,7 @@ Importer = Proto.clone().setType("Importer")
 			
 			if(anImport.name() == listName)
 			{
-				this.importCompleted(anImport.setComplete(true).setImportNames(importNames));
+				this.importCompleted(anImport.setIsComplete(true).setImportNames(importNames));
 				break;
 			}
 		}

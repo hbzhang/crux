@@ -1,5 +1,10 @@
 String.prototype.setSlotsIfAbsent(
 {
+	cssString: function() 
+	{ 
+		return this;
+	},
+	
 	replaceSeq: function(a, b)
 	{
 		var s = this;
