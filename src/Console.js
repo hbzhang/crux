@@ -20,7 +20,6 @@ if(!window.console)
 		{
 			if(document.body)
 			{
-				this.appendMessageElement(message);
 				var e = this.appendMessageElement(message);
 				e.style.color = "#FFFF00";
 				e.style.background = "#666666";
@@ -49,6 +48,7 @@ if(!window.console)
 		{
 			this.initConsoleElement();
 			var entryElement = document.createElement("div");
+			entryElement.style.position = "static";
 			//entryElement.innerText = message.toString();
 			entryElement.innerHTML = message.toString();
 			this._consoleElement.appendChild(entryElement);

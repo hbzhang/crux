@@ -17,6 +17,21 @@ function PropertyList_asArray(propertyList)
 	return a;
 }
 
+function PropertyList_pairs(propertyList)
+{
+	var a = [];
+	for(var name in propertyList)
+	{
+		a.push([name, propertyList[name]]);
+	}
+	return a;
+}
+
+function PropertyList_pairsSortedByValue(propertyList)
+{
+	return PropertyList_pairs(propertyList).sort(function(p0, p1){ return p0[1] - p1[1] });
+}
+
 function PropertyList_join(propertyList, separator)
 {
 	return PropertyList_asArray(propertyList).join(separator);
