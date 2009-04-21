@@ -7,6 +7,11 @@ Array.prototype.setSlotsIfAbsent(
 		this.splice.apply(this, args);
 	},
 	
+	empty: function()
+	{
+		this.splice(0, this.length);
+	},
+	
 	isEmpty: function()
 	{
 		return this.length == 0;

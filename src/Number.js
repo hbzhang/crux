@@ -2,7 +2,7 @@ Number.prototype.setSlots(
 {
 	cssString: function() 
 	{
-		this.toString();
+		return this.toString();
 	},
 	
 	milliseconds: function()
