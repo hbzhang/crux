@@ -501,5 +501,10 @@ Array.prototype.setSlotsIfAbsent(
 	{
 		var e = this[this.mapByCalling(accessorFunctionName).indexOf(value)];
 		return e === undefined ? null : e;
-	}	
+	},
+	
+	atInsert: function(i, e)
+	{
+		this.splice(i, 0, e);
+	}
 });
