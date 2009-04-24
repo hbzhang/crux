@@ -10,6 +10,8 @@ String.prototype.setSlotsIfAbsent(
 		var s = this;
 		var newString;
 		
+		if(b.contains(a)) throw "substring contains replace string";
+		
 		while(true)
 		{
 			var newString = s.replace(a, b)
