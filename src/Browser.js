@@ -17,9 +17,14 @@ Browser = Proto.clone().setSlots(
 		return navigator.appName.indexOf("Internet Explorer") > -1;
 	},
 	
+	isIE8: function()
+	{
+		return this.userAgent().indexOf("MSIE 8.0") != -1;
+	},
+	
 	isGecko: function()
 	{
-		this.userAgent().indexOf("Gecko") != -1;
+		return this.userAgent().indexOf("Gecko") != -1;
 	},
 	
 	version: function()
