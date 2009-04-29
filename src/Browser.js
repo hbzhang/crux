@@ -27,6 +27,11 @@ Browser = Proto.clone().setSlots(
 		return this.userAgent().indexOf("Gecko") != -1;
 	},
 	
+	isSafari: function()
+	{
+		return this.userAgent().indexOf("Safari") != -1;
+	},
+	
 	version: function()
 	{
 		if(this.isGecko())

@@ -37,6 +37,7 @@ String.prototype.setSlotsIfAbsent(
 
 	beginsWith: function(prefix)
 	{
+		if(!prefix) return false;
 		return this.indexOf(prefix) == 0;
 	},
 

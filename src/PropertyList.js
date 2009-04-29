@@ -27,6 +27,16 @@ function PropertyList_pairs(propertyList)
 	return a;
 }
 
+function PropertyList_size(propertyList)
+{
+	var size = 0;
+	for(var name in propertyList)
+	{
+		size ++;
+	}
+	return size;
+}
+
 function PropertyList_pairsSortedByValue(propertyList)
 {
 	return PropertyList_pairs(propertyList).sort(function(p0, p1){ return p0[1] - p1[1] });

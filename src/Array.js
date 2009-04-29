@@ -10,6 +10,7 @@ Array.prototype.setSlotsIfAbsent(
 	empty: function()
 	{
 		this.splice(0, this.length);
+		return this;
 	},
 	
 	isEmpty: function()
@@ -155,6 +156,11 @@ Array.prototype.setSlotsIfAbsent(
 			e[functionName].apply(e, args);
 		});
 		return this;
+	},
+	
+	forEachPerform: function()
+	{
+		return this.forEachCall.apply(this, arguments);
 	},
 
 	sortByCalling: function(functionName)
