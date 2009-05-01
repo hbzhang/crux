@@ -50,6 +50,11 @@ Interval = Proto.clone().newSlots("lowerBound", "excludesLowerBound", "upperBoun
 			fun.call(thisp, i, i, this);
 		}
 	},
+	
+	difference: function()
+	{
+		return this.upperBound() - this.lowerBound();
+	},
 
 	toString: function()
 	{

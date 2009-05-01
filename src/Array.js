@@ -187,6 +187,19 @@ Array.prototype.setSlotsIfAbsent(
 
 	mapByCalling: function(functionName)
 	{
+		//console.log("mapByCalling is deprecated.  Use mapByPerforming instead.");
+		//return this.mapByPerforming.apply(this, arguments);
+		var args = this.argsAsArray(arguments).slice(1);
+		args.push(0);
+		return this.map(function(e, i)
+		{
+			args[args.length - 1] = i;
+			return e[functionName].apply(e, args);
+		});
+	},
+	
+	mapByPerforming: function(messageName)
+	{
 		var args = this.argsAsArray(arguments).slice(1);
 		args.push(0);
 		return this.map(function(e, i)
@@ -196,7 +209,18 @@ Array.prototype.setSlotsIfAbsent(
 		});
 	},
 
-	detectByCalling: function(functionName)
+	detectByCalling: function()
+	{
+		//console.log("detectByCalling is deprecated.  Use detectByPerforming instead.");
+		//return this.detectByPerforming.apply(this, arguments);
+		var args = this.argsAsArray(arguments).slice(1);
+		return this.detect(function(e, i)
+		{
+			return e[functionName].apply(e, args);
+		});
+	},
+	
+	detectByPerforming: function(functionName)
 	{
 		var args = this.argsAsArray(arguments).slice(1);
 		return this.detect(function(e, i)

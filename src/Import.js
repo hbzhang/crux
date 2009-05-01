@@ -10,6 +10,7 @@ Importer.importedList("Crux",
 "Interval",
 "Number",
 "String",
+"Date",
 "Uri",
 "PropertyList"]
 );

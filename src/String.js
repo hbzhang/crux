@@ -120,5 +120,10 @@ String.prototype.setSlotsIfAbsent(
 	first: function()
 	{
 		return this.slice(0, 1);
+	},
+	
+	asNumber: function()
+	{
+		return Number(this);
 	}
 });
