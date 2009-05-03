@@ -8,3 +8,10 @@ Date.fromMillis = function(millis)
 {
 	return new Date(millis);
 }
+
+Date.prototype.setSlots({
+	startOfUTCDay: function()
+	{
+		return new Date(Math.floor(this.getTime() / Date.millisPerDay()) * Date.millisPerDay());
+	}
+})

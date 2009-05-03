@@ -6,18 +6,18 @@ Array.prototype.setSlotsIfAbsent(
 		args.concatInPlace(this.slice());
 		this.splice.apply(this, args);
 	},
-	
+
 	empty: function()
 	{
 		this.splice(0, this.length);
 		return this;
 	},
-	
+
 	isEmpty: function()
 	{
 		return this.length == 0;
 	},
-	
+
 	concatInPlace: function(anArray)
 	{
 		this.push.apply(this, anArray);
@@ -34,25 +34,25 @@ Array.prototype.setSlotsIfAbsent(
 			return this[this.length + index];
 		}
 	},
-	
+
 	removeElements: function(elements)
 	{
 		elements.forEach(function(e){ this.remove(e) }, this);
 		return this;
 	},
-	
+
 	append: function(e)
 	{
 		this.push(e);
 		return this;
 	},
-	
+
 	prepend: function(e)
 	{
 		this.unshift(e);
 		return this;
 	},
-	
+
 	remove: function(e)
 	{
 		var i = this.indexOf(e);
@@ -84,12 +84,23 @@ Array.prototype.setSlotsIfAbsent(
 		return this[this.length - 1];
 	},
 
-	pushIfAbsent: function(value)
+	pushIfAbsent: function()
 	{
-		if(this.indexOf(value) == -1)
+		console.log("pushIfAbsent is deprecated.  Use appendIfAbsent instead.");
+		return this.appendIfAbsent.apply(this, arguments);
+	},
+	
+	appendIfAbsent: function()
+	{
+		var self = this;
+		this.argsAsArray(arguments).forEach(function(value)
 		{
-			this.push(value);
-		}
+			if(self.indexOf(value) == -1)
+			{
+				self.push(value);
+			}
+		})
+		
 		return this;
 	},
 
@@ -157,7 +168,7 @@ Array.prototype.setSlotsIfAbsent(
 		});
 		return this;
 	},
-	
+
 	forEachPerform: function()
 	{
 		return this.forEachCall.apply(this, arguments);
@@ -190,7 +201,7 @@ Array.prototype.setSlotsIfAbsent(
 		console.log("mapByCalling is deprecated.  Use mapByPerforming instead.");
 		return this.mapByPerforming.apply(this, arguments);
 	},
-	
+
 	mapByPerforming: function(messageName)
 	{
 		var args = this.argsAsArray(arguments).slice(1);
@@ -207,7 +218,7 @@ Array.prototype.setSlotsIfAbsent(
 		console.log("detectByCalling is deprecated.  Use detectByPerforming instead.");
 		return this.detectByPerforming.apply(this, arguments);
 	},
-	
+
 	detectByPerforming: function(functionName)
 	{
 		var args = this.argsAsArray(arguments).slice(1);
@@ -278,7 +289,7 @@ Array.prototype.setSlotsIfAbsent(
 
 		return res;
 	},
-	
+
 	filterByPerforming: function(messageName)
 	{
 		var args = this.argsAsArray(arguments).slice(1);
@@ -315,18 +326,18 @@ Array.prototype.setSlotsIfAbsent(
 
 		return null;
 	},
-	
+
 	max: function(callback)
 	{
 		var m = undefined;
 		var mObject = undefined;
 		var length = this.length;
-		
+
 		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
-			
+
 			if(m == undefined || v > m)
 			{
 				m = v;
@@ -336,18 +347,18 @@ Array.prototype.setSlotsIfAbsent(
 
 		return mObject;
 	},
-	
+
 	maxIndex: function(callback)
 	{
 		var m = undefined;
 		var index = 0;
 		var length = this.length;
-		
+
 		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
-						
+
 			if(m == undefined || v > m)
 			{
 				m = v;
@@ -357,18 +368,18 @@ Array.prototype.setSlotsIfAbsent(
 
 		return index;
 	},
-	
+
 	min: function(callback)
 	{
 		var m = undefined;
 		var mObject = undefined;
 		var length = this.length;
-		
+
 		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
-						
+
 			if(m == undefined || v < m)
 			{
 				m = v;
@@ -384,12 +395,12 @@ Array.prototype.setSlotsIfAbsent(
 		var m = undefined;
 		var index = 0;
 		var length = this.length;
-		
+
 		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
-						
+
 			if(m == undefined || v < m)
 			{
 				m = v;
@@ -399,24 +410,24 @@ Array.prototype.setSlotsIfAbsent(
 
 		return index;
 	},
-	
+
 	sum: function(callback)
 	{
 		var m = undefined;
 		var sum = 0;
 		var length = this.length;
-		
+
 		for(var i = 0; i < length; i++)
 		{
 			var v = this[i];
 			if(callback) v = callback(v);
-						
+
 			sum = sum + v;
 		}
 
 		return sum;
 	},
-	
+
 	some: function(fun /*, thisp*/)
 	{
 		var len = this.length;
@@ -473,28 +484,28 @@ Array.prototype.setSlotsIfAbsent(
 	{
 		return this.indexOf(element) > -1;
 	},
-	
+
 	removeFirst: function ()
 	{
 		return this.shift();
 	},
-	
+
 	hasPrefix: function(otherArray)
 	{
 		if(this.length < otherArray.length) { return false; }
-		
+
 		for(var i = 0; i < this.length; i ++)
 		{
 			if(this[i] != otherArray[i]) return false;
 		}
-		
+
 		return true;
 	},
-	
+
 	toString: function()
 	{
 		var s = "[";
-		
+
 		for(var i = 0; i < this.length; i ++)
 		{
 			var value = this[i];
@@ -510,28 +521,28 @@ Array.prototype.setSlotsIfAbsent(
 				s = s + value;
 			}
 		}
-		
+
 		return s + "]";
 	},
 
 	isEqual: function(otherArray)
 	{
 		if(this.length != otherArray.length) { return false; }
-		
+
 		for(var i = 0; i < this.length; i ++)
 		{
 			if(this[i] != otherArray[i]) return false;
 		}
-		
+
 		return true;
 	},
-	
+
 	elementWith: function(accessorFunctionName, value)
 	{
 		var e = this[this.mapByPerforming(accessorFunctionName).indexOf(value)];
 		return e === undefined ? null : e;
 	},
-	
+
 	atInsert: function(i, e)
 	{
 		this.splice(i, 0, e);

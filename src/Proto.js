@@ -223,6 +223,11 @@ Proto.setSlots(
 			}
 		}
 		return this;
+	},
+	
+	performWithArgList: function(message, argList)
+	{
+		return this[message].apply(this, argList);
 	}
 });
 
