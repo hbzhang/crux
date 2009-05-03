@@ -185,17 +185,10 @@ Array.prototype.setSlotsIfAbsent(
 		});
 	},
 
-	mapByCalling: function(functionName)
+	mapByCalling: function()
 	{
-		//console.log("mapByCalling is deprecated.  Use mapByPerforming instead.");
-		//return this.mapByPerforming.apply(this, arguments);
-		var args = this.argsAsArray(arguments).slice(1);
-		args.push(0);
-		return this.map(function(e, i)
-		{
-			args[args.length - 1] = i;
-			return e[functionName].apply(e, args);
-		});
+		console.log("mapByCalling is deprecated.  Use mapByPerforming instead.");
+		return this.mapByPerforming.apply(this, arguments);
 	},
 	
 	mapByPerforming: function(messageName)
@@ -205,19 +198,14 @@ Array.prototype.setSlotsIfAbsent(
 		return this.map(function(e, i)
 		{
 			args[args.length - 1] = i;
-			return e[functionName].apply(e, args);
+			return e[messageName].apply(e, args);
 		});
 	},
 
 	detectByCalling: function()
 	{
-		//console.log("detectByCalling is deprecated.  Use detectByPerforming instead.");
-		//return this.detectByPerforming.apply(this, arguments);
-		var args = this.argsAsArray(arguments).slice(1);
-		return this.detect(function(e, i)
-		{
-			return e[functionName].apply(e, args);
-		});
+		console.log("detectByCalling is deprecated.  Use detectByPerforming instead.");
+		return this.detectByPerforming.apply(this, arguments);
 	},
 	
 	detectByPerforming: function(functionName)
@@ -289,6 +277,17 @@ Array.prototype.setSlotsIfAbsent(
 		}
 
 		return res;
+	},
+	
+	filterByPerforming: function(messageName)
+	{
+		var args = this.argsAsArray(arguments).slice(1);
+		args.push(0);
+		return this.filter(function(e, i)
+		{
+			args[args.length - 1] = i;
+			return e[messageName].apply(e, args);
+		});
 	},
 
 	detect: function(callback)
@@ -529,7 +528,7 @@ Array.prototype.setSlotsIfAbsent(
 	
 	elementWith: function(accessorFunctionName, value)
 	{
-		var e = this[this.mapByCalling(accessorFunctionName).indexOf(value)];
+		var e = this[this.mapByPerforming(accessorFunctionName).indexOf(value)];
 		return e === undefined ? null : e;
 	},
 	

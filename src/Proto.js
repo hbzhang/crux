@@ -159,10 +159,26 @@ Proto.setSlots(
 
 	newSlots: function()
 	{
-		this.argsAsArray(arguments).forEach(function(slotName)
+		var args = this.argsAsArray(arguments);
+
+		var slotsMap = {};
+		
+		if(args.length > 1 || typeof(args[0]) == "string")
 		{
-			this.newSlot(slotName);
-		}, this);
+			args.forEach(function(slotName)
+			{
+				slotsMap[slotName] = null;
+			})
+		}
+		else
+		{
+			slotsMap = args[0];
+		}
+		
+		for(slotName in slotsMap)
+		{
+			this.newSlot(slotName, slotsMap[slotName]);
+		}
 		return this;
 	},
 
