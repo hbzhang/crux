@@ -130,5 +130,15 @@ String.prototype.setSlotsIfAbsent(
 	stringCount: function(str)
 	{
 		return this.split(str).length - 1;
+	},
+	
+	pathComponents: function()
+	{
+		return this.split("/");
+	},
+	
+	lastPathComponent: function()
+	{
+		return this.pathComponents().last();
 	}
 });
