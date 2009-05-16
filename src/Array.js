@@ -546,5 +546,10 @@ Array.prototype.setSlotsIfAbsent(
 	atInsert: function(i, e)
 	{
 		this.splice(i, 0, e);
+	},
+	
+	size: function()
+	{
+		return this.length;
 	}
 });

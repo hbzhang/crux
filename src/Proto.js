@@ -228,6 +228,11 @@ Proto.setSlots(
 	performWithArgList: function(message, argList)
 	{
 		return this[message].apply(this, argList);
+	},
+	
+	perform: function(message)
+	{
+		return this[message].call(this, this.argsAsArray(arguments).slice(1));
 	}
 });
 

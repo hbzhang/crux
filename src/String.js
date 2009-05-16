@@ -140,5 +140,9 @@ String.prototype.setSlotsIfAbsent(
 	lastPathComponent: function()
 	{
 		return this.pathComponents().last();
-	}
+	},
+	
+	strip: function() {
+    	return this.replace(/^\s+/, '').replace(/\s+$/, '');
+  	}
 });

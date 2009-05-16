@@ -27,6 +27,26 @@ function PropertyList_pairs(propertyList)
 	return a;
 }
 
+function PropertyList_keys(propertyList)
+{
+	var a = [];
+	for(var name in propertyList)
+	{
+		a.push(name);
+	}
+	return a;
+}
+
+function PropertyList_values(propertyList)
+{
+	var a = [];
+	for(var name in propertyList)
+	{
+		a.push(propertyList[name]);
+	}
+	return a;
+}
+
 function PropertyList_size(propertyList)
 {
 	var size = 0;
