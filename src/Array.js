@@ -459,6 +459,16 @@ Array.prototype.setSlotsIfAbsent(
 
 		return true;
 	},
+	
+	allRespondTrue: function(message)
+	{
+		return this.every(function(e){ return e.perform(message) });
+	},
+	
+	firstRespondingTrue: function(message)
+	{
+		return this.detect(function(e){ return e.perform(message) });
+	},
 
 	indexOf: function(elt /*, from*/)
 	{

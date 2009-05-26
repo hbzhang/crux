@@ -62,9 +62,9 @@ function PropertyList_pairsSortedByValue(propertyList)
 	return PropertyList_pairs(propertyList).sort(function(p0, p1){ return p0[1] - p1[1] });
 }
 
-function PropertyList_join(propertyList, separator)
+function PropertyList_join(propertyList, kvSeparator, pairSeparator)
 {
-	return PropertyList_asArray(propertyList).join(separator);
+	return PropertyList_asArray(propertyList).mapByPerforming("join", kvSeparator).join(pairSeparator);
 }
 
 function PropertyList_shallowCopy(propertyList)
