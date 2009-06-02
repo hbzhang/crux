@@ -7,7 +7,7 @@ function PropertyList_isEmpty(propertyList)
 	return true;
 }
 
-function PropertyList_asArray(propertyList)
+function PropertyList_values(propertyList)
 {
 	var a = [];
 	for(var name in propertyList)
@@ -15,6 +15,11 @@ function PropertyList_asArray(propertyList)
 		a.push(propertyList[name]);
 	}
 	return a;
+}
+
+function PropertyList_asArray(propertyList)
+{
+	return PropertyList_values(propertyList);
 }
 
 function PropertyList_pairs(propertyList)
