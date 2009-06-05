@@ -22,6 +22,11 @@ Browser = Proto.clone().setSlots(
 		return this.userAgent().indexOf("MSIE 8.0") != -1;
 	},
 	
+	isIE6: function()
+	{
+		return this.isInternetExplorer() && !window.XMLHttpRequest;
+	},
+	
 	isGecko: function()
 	{
 		return this.userAgent().indexOf("Gecko") != -1;
