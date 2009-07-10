@@ -48,7 +48,8 @@ String.prototype.setSlotsIfAbsent(
 
 	endsWith: function(suffix)
 	{
-		return this.lastIndexOf(suffix) == this.length - suffix.length;
+		var index = this.lastIndexOf(suffix);
+		return (index > -1) && (this.lastIndexOf(suffix) == this.length - suffix.length);
 	},
 
 	removeSuffix: function(suffix)

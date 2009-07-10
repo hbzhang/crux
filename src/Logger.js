@@ -24,11 +24,14 @@ Logger = Proto.clone().setType("Logger")
 		
 		//if(Browser.isGecko() && window.console) return;
 		
-		window.console = {
-			log: function(){},
-			warn: function(){},
-			error: function(){}
+		if(!window.console)
+		{
+			window.console = {};
 		}
+		
+		window.console.log = function(){};
+		window.console.warn = function(){};
+		window.console.error = function(){};
 	}
 });
 
