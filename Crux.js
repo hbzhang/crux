@@ -44,19 +44,22 @@ Proto.setSlots = function(slots)
 	return this;
 };
 
+Proto_constructor = new Function;
+
 Proto.setSlots(
 {
+	constructor: new Function,
+	
 	clone: function()
 	{
-		var constructor = new Function;
-		constructor.prototype = this;
+		Proto_constructor.prototype = this;
 		
-		var obj = new constructor;
+		var obj = new Proto_constructor;
 		obj._proto = this;
 		obj._uniqueId = ++ Proto.uniqueIdCounter;
 		if(obj.init)
 			obj.init();
-		return obj
+		return obj;
 	},
 	
 	uniqueId: function()
@@ -93,20 +96,59 @@ Proto.setSlots(
 		return this;
 	},
 	
+	printSlotCalls: function()
+	{
+		var calls = [];
+		for(var name in SlotCalls)
+		{
+		  var o = {};
+		  o.name = name;
+		  o.count = SlotCalls[name];
+		  calls.push(o);
+		}
+		calls.sort(function(x, y){ return x.count - y.count });
+		for(var i = 0; i < calls.length; i ++)
+		{
+		  Logger.log(calls[i].name + ":" + calls[i].count);
+		}
+	},
+	
 	newSlot: function(name, initialValue)
 	{
+		if(typeof(name) != "string") throw "name must be a string";
+		/*
+		if(!window.SlotCalls)
+		{
+			window.SlotCalls = {};
+		}
+		*/
 		if(initialValue === undefined) { initialValue = null };
 		
 		this["_" + name] = initialValue;
 		this[name] = function()
 		{
+			/*
+			if(SlotCalls[name] === undefined)
+			{
+				SlotCalls[name] = 0;
+			}
+			SlotCalls[name] ++;
+			*/
 			return this["_" + name];
 		}
-		this["set" + (name.indexOf("is") == 0 ? name.slice(2) : name).asCapitalized()] = function(newValue)
+		
+		this["set" + name.asCapitalized()] = function(newValue)
 		{
 			this["_" + name] = newValue;
 			return this;
 		}
+		return this;
+	},
+	
+	aliasSlot: function(slotName, aliasName)
+	{
+		this[aliasName] = this[slotName];
+		this["set" + aliasName.asCapitalized()] = this["set" + slotName.asCapitalized()];
 		return this;
 	},
 
@@ -117,10 +159,26 @@ Proto.setSlots(
 
 	newSlots: function()
 	{
-		this.argsAsArray(arguments).forEach(function(slotName)
+		var args = this.argsAsArray(arguments);
+
+		var slotsMap = {};
+		
+		if(args.length > 1 || typeof(args[0]) == "string")
 		{
-			this.newSlot(slotName);
-		}, this);
+			args.forEach(function(slotName)
+			{
+				slotsMap[slotName] = null;
+			})
+		}
+		else
+		{
+			slotsMap = args[0];
+		}
+		
+		for(slotName in slotsMap)
+		{
+			this.newSlot(slotName, slotsMap[slotName]);
+		}
 		return this;
 	},
 
@@ -165,17 +223,90 @@ Proto.setSlots(
 			}
 		}
 		return this;
+	},
+	
+	performWithArgList: function(message, argList)
+	{
+		return this[message].apply(this, argList);
+	},
+	
+	perform: function(message)
+	{
+		return this[message].call(this, this.argsAsArray(arguments).slice(1));
 	}
 });
 
 Proto.newSlot("type", "Proto");
 Proto.removeSlot = Proto.removeSlots;
-
+Browser = Proto.clone().setSlots(
+{
+	userAgent: function()
+	{
+		if(typeof window != "undefined" && typeof window.navigator != "undefined")
+		{
+			return window.navigator.userAgent;
+		}
+		else
+		{
+			return "";
+		}
+	},
+	
+	isInternetExplorer: function()
+	{
+		return navigator.appName.indexOf("Internet Explorer") > -1;
+	},
+	
+	isIE8: function()
+	{
+		return this.userAgent().indexOf("MSIE 8.0") != -1;
+	},
+	
+	isIE6: function()
+	{
+		return this.isInternetExplorer() && !window.XMLHttpRequest;
+	},
+	
+	isGecko: function()
+	{
+		return this.userAgent().indexOf("Gecko") != -1;
+	},
+	
+	isSafari: function()
+	{
+		return this.userAgent().indexOf("Safari") != -1;
+	},
+	
+	version: function()
+	{
+		if(this.isGecko())
+		{
+			var index = this.userAgent().indexOf("Firefox");
+			return (index == -1) ? 2.0 : parseFloat(this.userAgent().substring(index + "Firefox".length + 1));
+		}
+		else
+		{
+			return null;
+		}
+	},
+	
+	locationAsUri: function()
+	{
+		return Uri.withString(window.location.href);
+	}
+})
 for(slotName in Proto)
 {
 	[Array, String, Number, Date].forEach(function(contructorFunction)
 	{
-		contructorFunction.prototype[slotName] = Proto[slotName];
+		if(contructorFunction == Array && slotName == "clone" && Browser.isInternetExplorer())
+		{
+			contructorFunction.prototype[slotName] = function(){ throw new Error("You can't clone an Array proto in IE yet.") };
+		}
+		else
+		{
+			contructorFunction.prototype[slotName] = Proto[slotName];
+		}
 		contructorFunction.clone = function()
 		{
 			return new contructorFunction;
@@ -197,18 +328,14 @@ Importer = Proto.clone().setType("Importer")
 			{
 				var path = pathMap[name];
 			}
-			if(name == "Crux" && (path == "Proto" || path == "Importer")){ continue }
 			
 			this._imports.push(Import.clone().setName(name).setPath(path));
 		}
 		
 		var importsCopy = Array.prototype.slice.call(this._imports);
-		window.onload = function()
+		for(var i = 0; i < importsCopy.length; i ++)
 		{
-			for(var i = 0; i < importsCopy.length; i ++)
-			{
-				importsCopy[i].start();
-			}
+			importsCopy[i].start();
 		}
 	},
 	
@@ -234,9 +361,10 @@ Importer = Proto.clone().setType("Importer")
 		for(var i = 0; i < this._imports.length; i ++)
 		{
 			var anImport = this._imports[i];
+			
 			if(anImport.name() == listName)
 			{
-				this.importCompleted(anImport.setComplete(true).setImportNames(importNames));
+				this.importCompleted(anImport.setIsComplete(true).setImportNames(importNames));
 				break;
 			}
 		}
@@ -252,7 +380,11 @@ Importer = Proto.clone().setType("Importer")
 				var importNames = nextImport.importNames();
 				for(var i = 0; i < importNames.length; i ++)
 				{
-					this._scriptPaths.push(nextImport.path() + "/" + importNames[i] + ".js");
+					var importName = importNames[i];
+					if(!(nextImport.name() == "Crux" && (importName == "Proto" || importName == "Importer")))
+					{
+						this._scriptPaths.push(nextImport.path() + "/" + importName + ".js");
+					}
 				}
 			}
 		}
@@ -293,66 +425,49 @@ Import = Proto.clone().setType("Import")
 		
 	}
 });
-Browser = Proto.clone().setSlots(
-{
-	isInternetExplorer: function()
-	{
-		return navigator.appName.indexOf("Internet Explorer") > -1;
-	}
-})
 if(!window.console)
 {
 	console = Proto.clone()
-	.newSlot("isEnabled", true)
 	.setSlots(
 	{
-		log: function(message)
+		log: function()
 		{
-			if(this._isEnabled)
+			var message = this.argsAsArray(arguments).join("");
+			if(document.body)
 			{
-				if(document.body)
-				{
-					this.appendMessageElement(message);
-				}
-				else
-				{
-					alert("log: " + message);
-				}
+				this.appendMessageElement(message);
+			}
+			else
+			{
+				alert("log: " + message);
 			}
 		},
 		
 		warn: function(message)
 		{
-			if(this._isEnabled)
+			if(document.body)
 			{
-				if(document.body)
-				{
-					this.appendMessageElement(message);
-					var e = this.appendMessageElement(message);
-					e.style.color = "#FFFF00";
-					e.style.background = "#666666";
-				}
-				else
-				{
-					alert("warn: " + message);
-				}
+				var e = this.appendMessageElement(message);
+				e.style.color = "#FFFF00";
+				e.style.background = "#666666";
+			}
+			else
+			{
+				alert("warn: " + message);
 			}
 		},
 		
 		error: function(message)
 		{
-			if(this._isEnabled)
+			if(document.body)
 			{
-				if(document.body)
-				{
-					this.appendMessageElement(message);
-					var e = this.appendMessageElement(message);
-					e.style.color = "#FF0000";
-				}
-				else
-				{
-					alert("error: " + message);
-				}
+				this.appendMessageElement(message);
+				var e = this.appendMessageElement(message);
+				e.style.color = "#FF0000";
+			}
+			else
+			{
+				alert("error: " + message);
 			}
 		},
 		
@@ -360,7 +475,9 @@ if(!window.console)
 		{
 			this.initConsoleElement();
 			var entryElement = document.createElement("div");
-			entryElement.innerText = message.toString();
+			entryElement.style.position = "static";
+			//entryElement.innerText = message.toString();
+			entryElement.innerHTML = message.toString();
 			this._consoleElement.appendChild(entryElement);
 			this._consoleElement.scrollTop = this._consoleElement.scrollHeight;
 			
@@ -376,7 +493,7 @@ if(!window.console)
 				style.position = "absolute";
 				style.x = 0;
 				style.y = 0;
-				style.width = 200;
+				style.width = 300;
 				style.height = 400;
 				style.zIndex = 2000;
 				style.background = "#FFFFFF";
@@ -391,13 +508,64 @@ if(!window.console)
 		}
 	});
 }
+Logger = Proto.clone().setType("Logger")
+.setSlots(
+{
+	log: function()
+	{
+		console.log.apply(console, arguments);
+	},
+	
+	warn: function()
+	{
+		console.warn.apply(console, arguments);
+	},
+	
+	error: function()
+	{
+		console.error.apply(console, arguments);
+	},
+	
+	disable: function()
+	{
+		this.log = function(){}
+		this.warn = function(){}
+		this.error = function(){}
+		
+		//if(Browser.isGecko() && window.console) return;
+		
+		if(!window.console)
+		{
+			window.console = {};
+		}
+		
+		window.console.log = function(){};
+		window.console.warn = function(){};
+		window.console.error = function(){};
+	}
+});
+
+if(window.ENVIRONMENT == "production") Logger.disable();
 Array.prototype.setSlotsIfAbsent(
 {
+	init: function()
+	{
+		var args = [0, this.length];
+		args.concatInPlace(this.slice());
+		this.splice.apply(this, args);
+	},
+
+	empty: function()
+	{
+		this.splice(0, this.length);
+		return this;
+	},
+
 	isEmpty: function()
 	{
 		return this.length == 0;
 	},
-	
+
 	concatInPlace: function(anArray)
 	{
 		this.push.apply(this, anArray);
@@ -414,29 +582,29 @@ Array.prototype.setSlotsIfAbsent(
 			return this[this.length + index];
 		}
 	},
-	
+
 	removeElements: function(elements)
 	{
 		elements.forEach(function(e){ this.remove(e) }, this);
 		return this;
 	},
-	
+
 	append: function(e)
 	{
 		this.push(e);
 		return this;
 	},
-	
+
 	prepend: function(e)
 	{
 		this.unshift(e);
 		return this;
 	},
-	
+
 	remove: function(e)
 	{
 		var i = this.indexOf(e);
-		if(i > 0)
+		if(i > -1)
 		{
 			this.removeAt(i);
 		}
@@ -464,12 +632,23 @@ Array.prototype.setSlotsIfAbsent(
 		return this[this.length - 1];
 	},
 
-	pushIfAbsent: function(value)
+	pushIfAbsent: function()
 	{
-		if(this.indexOf(value) == -1)
+		console.log("pushIfAbsent is deprecated.  Use appendIfAbsent instead.");
+		return this.appendIfAbsent.apply(this, arguments);
+	},
+	
+	appendIfAbsent: function()
+	{
+		var self = this;
+		this.argsAsArray(arguments).forEach(function(value)
 		{
-			this.push(value);
-		}
+			if(self.indexOf(value) == -1)
+			{
+				self.push(value);
+			}
+		})
+		
 		return this;
 	},
 
@@ -538,27 +717,57 @@ Array.prototype.setSlotsIfAbsent(
 		return this;
 	},
 
+	forEachPerform: function()
+	{
+		return this.forEachCall.apply(this, arguments);
+	},
+
 	sortByCalling: function(functionName)
 	{
 		var args = this.argsAsArray(arguments).slice(1);
 		return this.sort(function(x, y)
 		{
-			return x[functionName].apply(functionName, args) < y[functionName].apply(functionName, args);
+			var xRes = x[functionName].apply(x, args);
+			var yRes = y[functionName].apply(y, args);
+			if(xRes < yRes)
+			{
+				return -1;
+			}
+			else if(yRes < xRes)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
 		});
 	},
 
-	mapByCalling: function(functionName)
+	mapByCalling: function()
+	{
+		console.log("mapByCalling is deprecated.  Use mapByPerforming instead.");
+		return this.mapByPerforming.apply(this, arguments);
+	},
+
+	mapByPerforming: function(messageName)
 	{
 		var args = this.argsAsArray(arguments).slice(1);
 		args.push(0);
 		return this.map(function(e, i)
 		{
 			args[args.length - 1] = i;
-			return e[functionName].apply(e, args);
+			return e[messageName].apply(e, args);
 		});
 	},
 
-	detectByCalling: function(functionName)
+	detectByCalling: function()
+	{
+		console.log("detectByCalling is deprecated.  Use detectByPerforming instead.");
+		return this.detectByPerforming.apply(this, arguments);
+	},
+
+	detectByPerforming: function(functionName)
 	{
 		var args = this.argsAsArray(arguments).slice(1);
 		return this.detect(function(e, i)
@@ -629,6 +838,17 @@ Array.prototype.setSlotsIfAbsent(
 		return res;
 	},
 
+	filterByPerforming: function(messageName)
+	{
+		var args = this.argsAsArray(arguments).slice(1);
+		args.push(0);
+		return this.filter(function(e, i)
+		{
+			args[args.length - 1] = i;
+			return e[messageName].apply(e, args);
+		});
+	},
+
 	detect: function(callback)
 	{
 		for(var i = 0; i < this.length; i++)
@@ -653,6 +873,107 @@ Array.prototype.setSlotsIfAbsent(
 		}
 
 		return null;
+	},
+
+	max: function(callback)
+	{
+		var m = undefined;
+		var mObject = undefined;
+		var length = this.length;
+
+		for(var i = 0; i < length; i++)
+		{
+			var v = this[i];
+			if(callback) v = callback(v);
+
+			if(m == undefined || v > m)
+			{
+				m = v;
+				mObject = this[i];
+			}
+		}
+
+		return mObject;
+	},
+
+	maxIndex: function(callback)
+	{
+		var m = undefined;
+		var index = 0;
+		var length = this.length;
+
+		for(var i = 0; i < length; i++)
+		{
+			var v = this[i];
+			if(callback) v = callback(v);
+
+			if(m == undefined || v > m)
+			{
+				m = v;
+				index = i;
+			}
+		}
+
+		return index;
+	},
+
+	min: function(callback)
+	{
+		var m = undefined;
+		var mObject = undefined;
+		var length = this.length;
+
+		for(var i = 0; i < length; i++)
+		{
+			var v = this[i];
+			if(callback) v = callback(v);
+
+			if(m == undefined || v < m)
+			{
+				m = v;
+				mObject = this[i];
+			}
+		}
+
+		return mObject;
+	},
+
+	minIndex: function(callback)
+	{
+		var m = undefined;
+		var index = 0;
+		var length = this.length;
+
+		for(var i = 0; i < length; i++)
+		{
+			var v = this[i];
+			if(callback) v = callback(v);
+
+			if(m == undefined || v < m)
+			{
+				m = v;
+				index = i;
+			}
+		}
+
+		return index;
+	},
+
+	sum: function(callback)
+	{
+		var m = undefined;
+		var sum = 0;
+		var length = this.length;
+
+		for(var i = 0; i < length; i++)
+		{
+			var v = this[i];
+			if(callback) v = callback(v);
+
+			sum = sum + v;
+		}
+
+		return sum;
 	},
 
 	some: function(fun /*, thisp*/)
@@ -686,6 +1007,16 @@ Array.prototype.setSlotsIfAbsent(
 
 		return true;
 	},
+	
+	allRespondTrue: function(message)
+	{
+		return this.every(function(e){ return e.perform(message) });
+	},
+	
+	firstRespondingTrue: function(message)
+	{
+		return this.detect(function(e){ return e.perform(message) });
+	},
 
 	indexOf: function(elt /*, from*/)
 	{
@@ -710,6 +1041,74 @@ Array.prototype.setSlotsIfAbsent(
 	contains: function(element)
 	{
 		return this.indexOf(element) > -1;
+	},
+
+	removeFirst: function ()
+	{
+		return this.shift();
+	},
+
+	hasPrefix: function(otherArray)
+	{
+		if(this.length < otherArray.length) { return false; }
+
+		for(var i = 0; i < this.length; i ++)
+		{
+			if(this[i] != otherArray[i]) return false;
+		}
+
+		return true;
+	},
+
+	toString: function()
+	{
+		var s = "[";
+
+		for(var i = 0; i < this.length; i ++)
+		{
+			var value = this[i];
+
+			if (i != 0) s = s + ","
+
+			if(typeof(value) == "string")
+			{
+				s = s + "\"" + value + "\"";
+			}
+			else
+			{
+				s = s + value;
+			}
+		}
+
+		return s + "]";
+	},
+
+	isEqual: function(otherArray)
+	{
+		if(this.length != otherArray.length) { return false; }
+
+		for(var i = 0; i < this.length; i ++)
+		{
+			if(this[i] != otherArray[i]) return false;
+		}
+
+		return true;
+	},
+
+	elementWith: function(accessorFunctionName, value)
+	{
+		var e = this[this.mapByPerforming(accessorFunctionName).indexOf(value)];
+		return e === undefined ? null : e;
+	},
+
+	atInsert: function(i, e)
+	{
+		this.splice(i, 0, e);
+	},
+	
+	size: function()
+	{
+		return this.length;
 	}
 });
 Interval = Proto.clone().newSlots("lowerBound", "excludesLowerBound", "upperBound", "excludesUpperBound").setSlots(
@@ -764,6 +1163,11 @@ Interval = Proto.clone().newSlots("lowerBound", "excludesLowerBound", "upperBoun
 			fun.call(thisp, i, i, this);
 		}
 	},
+	
+	difference: function()
+	{
+		return this.upperBound() - this.lowerBound();
+	},
 
 	toString: function()
 	{
@@ -772,6 +1176,11 @@ Interval = Proto.clone().newSlots("lowerBound", "excludesLowerBound", "upperBoun
 });
 Number.prototype.setSlots(
 {
+	cssString: function() 
+	{
+		return this.toString();
+	},
+	
 	milliseconds: function()
 	{
 		return this;
@@ -785,6 +1194,16 @@ Number.prototype.setSlots(
 		}
 		return this;
 	},
+	
+	map: function()
+	{
+		var a = [];
+		for(var i = 0; i < this; i ++)
+		{
+			a.push(i);
+		}
+		return Array.prototype.map.apply(a, arguments);
+	},
 
 	isEven: function()
 	{
@@ -793,6 +1212,28 @@ Number.prototype.setSlots(
 });
 String.prototype.setSlotsIfAbsent(
 {
+	cssString: function() 
+	{ 
+		return this;
+	},
+	
+	replaceSeq: function(a, b)
+	{
+		var s = this;
+		var newString;
+		
+		if(b.contains(a)) throw "substring contains replace string";
+		
+		while(true)
+		{
+			var newString = s.replace(a, b)
+			if(newString == s) return newString;;
+			s = newString;
+		}
+		
+		return this;
+	},
+	
 	repeated: function(times)
 	{
 		var result = "";
@@ -808,6 +1249,7 @@ String.prototype.setSlotsIfAbsent(
 
 	beginsWith: function(prefix)
 	{
+		if(!prefix) return false;
 		return this.indexOf(prefix) == 0;
 	},
 
@@ -818,7 +1260,8 @@ String.prototype.setSlotsIfAbsent(
 
 	endsWith: function(suffix)
 	{
-		return this.lastIndexOf(suffix) == this.length - suffix.length;
+		var index = this.lastIndexOf(suffix);
+		return (index > -1) && (this.lastIndexOf(suffix) == this.length - suffix.length);
 	},
 
 	removeSuffix: function(suffix)
@@ -849,13 +1292,90 @@ String.prototype.setSlotsIfAbsent(
 		return this.indexOf(aString) > -1;
 	},
 	
+	before: function(aString)
+	{
+		var index = this.indexOf(aString);
+		if(index == -1) return this;
+		return this.slice(0, index); 
+	},
+	
+	after: function(aString)
+	{
+		var index = this.indexOf(aString);
+		if(index == -1) return this;
+		return this.slice(index);
+	},
+	
 	asUncapitalized: function()
 	{
-		return this.replace(/\b[A-Z]/g, function(match){
+		return this.replace(/\b[A-Z]/g, function(match) {
 			return match.toLowerCase();
 		});
-	}
+	},
+	
+	asCapitalized: function()
+	{
+		return this.replace(/\b[A-Z]/g, function(match) {
+			return match.toUpperCase();
+		});
+	},
+	
+	containsCapitals: function()
+	{
+		return this.search(/[A-Z]/g) > -1;
+	},
+	
+	charAt: function(i)
+	{
+		return this.slice(i, i + 1);
+	},
+	
+	first: function()
+	{
+		return this.slice(0, 1);
+	},
+	
+	asNumber: function()
+	{
+		return Number(this);
+	},
+	
+	stringCount: function(str)
+	{
+		return this.split(str).length - 1;
+	},
+	
+	pathComponents: function()
+	{
+		return this.split("/");
+	},
+	
+	lastPathComponent: function()
+	{
+		return this.pathComponents().last();
+	},
+	
+	strip: function() {
+    	return this.replace(/^\s+/, '').replace(/\s+$/, '');
+  	}
 });
+Date.millisPerHour = function(){ return 3600 * 1000 };
+Date.millisPerDay = function(){ return 24 * Date.millisPerHour() };
+Date.millisPerYear = function(){ return Date.millisPerDay() * 365 };
+Date.yearsFromNow = function(years){ return Date.fromMillis(Date.clone().getTime() + Date.millisPerYear() * years) };
+Date.hoursAgo = function(hours){ return Date.fromMillis(Date.clone().getTime() - Date.millisPerHour() * hours) };
+Date.daysAgo = function(days){ return Date.fromMillis(Date.clone().getTime() - Date.millisPerDay() * days) };
+Date.fromMillis = function(millis)
+{
+	return new Date(millis);
+}
+
+Date.prototype.setSlots({
+	startOfUTCDay: function()
+	{
+		return new Date(Math.floor(this.getTime() / Date.millisPerDay()) * Date.millisPerDay());
+	}
+})
 Uri = Proto.clone().newSlot("protocol", "http").newSlots("hostname", "port", "path", "queryString", "fragment").setSlots(
 {
 	withString: function(uriString)
@@ -916,3 +1436,86 @@ Uri = Proto.clone().newSlot("protocol", "http").newSlots("hostname", "port", "pa
 		return uriString;
 	}
 });
+function PropertyList_isEmpty(propertyList)
+{
+	for(var name in propertyList)
+	{
+		return false;
+	}
+	return true;
+}
+
+function PropertyList_values(propertyList)
+{
+	var a = [];
+	for(var name in propertyList)
+	{
+		a.push(propertyList[name]);
+	}
+	return a;
+}
+
+function PropertyList_asArray(propertyList)
+{
+	return PropertyList_values(propertyList);
+}
+
+function PropertyList_pairs(propertyList)
+{
+	var a = [];
+	for(var name in propertyList)
+	{
+		a.push([name, propertyList[name]]);
+	}
+	return a;
+}
+
+function PropertyList_keys(propertyList)
+{
+	var a = [];
+	for(var name in propertyList)
+	{
+		a.push(name);
+	}
+	return a;
+}
+
+function PropertyList_values(propertyList)
+{
+	var a = [];
+	for(var name in propertyList)
+	{
+		a.push(propertyList[name]);
+	}
+	return a;
+}
+
+function PropertyList_size(propertyList)
+{
+	var size = 0;
+	for(var name in propertyList)
+	{
+		size ++;
+	}
+	return size;
+}
+
+function PropertyList_pairsSortedByValue(propertyList)
+{
+	return PropertyList_pairs(propertyList).sort(function(p0, p1){ return p0[1] - p1[1] });
+}
+
+function PropertyList_join(propertyList, kvSeparator, pairSeparator)
+{
+	return PropertyList_asArray(propertyList).mapByPerforming("join", kvSeparator).join(pairSeparator);
+}
+
+function PropertyList_shallowCopy(propertyList)
+{
+	var copy = {};
+	for(var name in propertyList)
+	{
+		copy[name] = propertyList[name]
+	}
+	return copy;
+}
